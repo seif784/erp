@@ -394,179 +394,335 @@
       }
     }
 
-    /* ================== خلفية أساسية ================== */
-    body {
-      margin: 0;
-      font-family: "Tahoma", sans-serif;
-      background: linear-gradient(135deg, #d9e4f5, #f5f7fa);
-      min-height: 100vh;
-    }
-
-    /* ================== شاشة تسجيل الدخول ================== */
-    #loginSection {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: rgba(0, 0, 0, 0.45);
-      z-index: 9999;
-    }
-
-    .login-container {
-      width: 100%;
-      max-width: 400px;
-      padding: 20px;
-    }
-
-    .login-card {
-      background: rgba(255, 255, 255, 0.15);
-      border-radius: 16px;
-      backdrop-filter: blur(15px);
-      padding: 30px 25px;
-      text-align: center;
-      color: #000;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-      animation: fadeIn 0.8s ease-out;
-    }
-
-    .login-card h1 {
-      margin-bottom: 25px;
-      font-size: 24px;
-      font-weight: bold;
-      color: #222;
-    }
-
-    .input-group {
-      display: flex;
-      align-items: center;
-      background: rgba(255, 255, 255, 0.25);
-      border-radius: 8px;
-      margin-bottom: 15px;
-      padding: 10px;
-    }
-
-    .input-group i {
-      margin-right: 10px;
-      color: #555;
-    }
-
-    .input-group input {
-      border: none;
-      outline: none;
-      background: transparent;
-      color: #000;
-      width: 100%;
-      font-size: 14px;
-    }
-
-    .input-group input::placeholder {
-      color: #777;
-    }
-
-    .btn-login {
-      width: 100%;
-      padding: 12px;
-      background: linear-gradient(90deg, #0078d7, #005bb5);
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: bold;
-      color: #fff;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .btn-login:hover {
-      transform: translateY(-2px);
-      background: linear-gradient(90deg, #0064b5, #004d99);
-    }
-
-    .btn-login:active {
-      transform: scale(0.97);
-    }
-
-    #loginStatus {
-      margin-top: 12px;
-      font-size: 14px;
-      color: #d33;
-      font-weight: bold;
-    }
-
-    /* ================== حالة قبل تسجيل الدخول ================== */
     #appMain,
     .bottom-nav {
-      filter: blur(8px);
-      opacity: 0.5;
+      filter: blur(6px);
+      opacity: .5;
       pointer-events: none;
       user-select: none;
-      transition: all 0.4s ease;
-      display: none;
+      transition: all .35s
     }
 
-    /* ================== بعد تسجيل الدخول ================== */
     body.logged-in #appMain,
     body.logged-in .bottom-nav {
       filter: none;
       opacity: 1;
       pointer-events: auto;
-      user-select: auto;
-      display: block;
-      animation: fadeInUp 0.7s ease-out;
+      user-select: auto
     }
 
-    /* ================== أنيميشن ================== */
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
+    /* login overlay */
+    #loginSection {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, .30);
+      z-index: 9999;
+    }
+
+    .login-card {
+      width: 360px;
+      background: linear-gradient(180deg, #ffffff, #f8fbff);
+      padding: 28px;
+      border-radius: 12px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, .25);
+      text-align: center;
+    }
+
+    .login-card h1 {
+      margin: 0 0 12px;
+      color: var(--main);
+      font-size: 20px
+    }
+
+    .input-group {
+      display: flex;
+      align-items: center;
+      background: #fff;
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 12px;
+      border: 1px solid #e6eefc
+    }
+
+    .input-group i {
+      margin-left: 8px;
+      color: var(--muted);
+      font-size: 16px
+    }
+
+    .input-group input {
+      border: 0;
+      outline: 0;
+      background: transparent;
+      flex: 1;
+      font-size: 15px;
+      padding-right: 6px
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 0;
+      background: linear-gradient(90deg, #00c9ff, #0078d7);
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer
+    }
+
+    .login-hint {
+      font-size: 13px;
+      color: #666;
+      margin-top: 10px
+    }
+
+    /* main layout (simplified) */
+    h1.page-title {
+      color: var(--main);
+      text-align: center;
+      margin-bottom: 14px
+    }
+
+
+    .form-group {
+      margin-bottom: 10px
+    }
+
+
+    .flex-row {
+      display: flex;
+      gap: 10px
+    }
+
+    .right {
+      text-align: right
+    }
+
+
+    .hidden {
+      display: none
+    }
+
+    img.signature-preview {
+      width: 48px;
+      height: 48px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid #ddd
+    }
+
+    /* dev tools card style */
+    .dev-tools {
+      background: #fff4d6;
+      border: 1px solid #ffe5a8;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 12px
+    }
+
+    @media (max-width:700px) {
+      .login-card {
+        width: 92%
       }
 
-      to {
-        opacity: 1;
-        transform: translateY(0);
+      main {
+        padding: 12px
+      }
+
+      .bottom-nav {
+        flex-wrap: wrap;
+        width: 95%
       }
     }
 
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(40px);
-      }
+    /* ===== الكارت ===== */
+    #userSettings.card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px auto;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+      max-width: 900px;
+      transition: all 0.3s ease-in-out;
+    }
 
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+    /* ===== العناوين ===== */
+    #userSettings h1,
+    #userSettings h3,
+    #userSettings h4 {
+      color: #222;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    #userSettings h1 i,
+    #userSettings h3 i {
+      color: #007bff;
+      margin-left: 6px;
+    }
+
+    /* ===== الفورم ===== */
+    #userSettings .form-group {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 12px;
+    }
+
+    #userSettings label {
+      font-size: 14px;
+      margin-bottom: 6px;
+      color: #555;
+      font-weight: 600;
+    }
+
+    #userSettings input,
+    #userSettings select {
+      padding: 8px 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      background: #fafafa;
+      transition: 0.2s ease;
+    }
+
+    #userSettings input:focus,
+    #userSettings select:focus {
+      border-color: #007bff;
+      box-shadow: 0 0 6px rgba(0, 123, 255, 0.25);
+      outline: none;
+      background: #fff;
+    }
+
+    /* ===== الأزرار ===== */
+    #userSettings .form-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    #userSettings .btn {
+      background: linear-gradient(90deg, #007bff, #0056b3);
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+
+    #userSettings .btn:hover {
+      background: linear-gradient(90deg, #0056b3, #003d80);
+    }
+
+    #userSettings .muted {
+      background: #f1f1f1;
+      color: #333;
+      border: 1px solid #ccc;
+      font-weight: 500;
+      padding: 8px 14px;
+      border-radius: 6px;
+    }
+
+    #userSettings .muted:hover {
+      background: #e2e2e2;
+    }
+
+    /* ===== الجدول ===== */
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    #usersTable {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    }
+
+    #usersTable th,
+    #usersTable td {
+      border: 1px solid #eee;
+      padding: 10px;
+      font-size: 13px;
+    }
+
+    #usersTable th {
+      background: linear-gradient(90deg, #007bff, #0056b3);
+      color: #fff;
+      font-size: 14px;
+      text-transform: uppercase;
+    }
+
+    #usersTable tr:nth-child(even) {
+      background: #f9f9f9;
+    }
+
+    #usersTable tr:hover {
+      background: #eef5ff;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    #usersTable img.signature-preview {
+      width: 50px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    /* ===== زر تسجيل الخروج ===== */
+    #logoutBtn {
+      background: linear-gradient(90deg, #dc3545, #b52a37);
+      color: white;
+      border: none;
+      font-size: 13px;
+      padding: 8px 14px;
+      border-radius: 6px;
+    }
+
+    #logoutBtn:hover {
+      background: linear-gradient(90deg, #b52a37, #891f29);
     }
   </style>
 </head>
 
 <body>
 
-  <div id="loginSection"
-  style="position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background-color: rgba(253, 253, 253, 0.8); z-index: 9999;
-  display: flex; align-items: center; justify-content: center;">
+  <section id="loginSection">
+    <div class="login-card" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+      <h1 id="loginTitle"><i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول</h1>
 
-  <div class="login-card">
-    <h1><i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول</h1>
-    <form id="loginForm">
-      <div class="input-group">
-        <i class="fa-solid fa-user"></i>
-        <input type="text" id="loginUsername" placeholder="اسم المستخدم" required />
-      </div>
-      <div class="input-group">
-        <i class="fa-solid fa-lock"></i>
-        <input type="password" id="loginPassword" placeholder="كلمة المرور" required />
-      </div>
-      <button type="submit" class="btn-login">➡️ دخول</button>
-    </form>
-    <p id="loginStatus"></p>
-  </div>
-</div>
+      <form id="loginForm" autocomplete="off">
+        <div class="input-group">
+          <i class="fa-solid fa-user"></i>
+          <input id="loginUsername" placeholder="اسم المستخدم" required />
+        </div>
 
-  <main id="appMain" style="display:none;">
+        <div class="input-group">
+          <i class="fa-solid fa-lock"></i>
+          <input id="loginPassword" type="password" placeholder="كلمة المرور" required />
+        </div>
+
+        <label style="display:flex;align-items:center;font-size:14px;margin:8px 0;gap:6px">
+          <input type="checkbox" id="rememberMe" />
+          تذكرني
+        </label>
+
+        <button class="btn-login" type="submit">➡️ دخول</button>
+      </form>
+
+      <p id="loginStatus" class="login-hint" style="color:#d9534f"></p>
+    </div>
+  </section>
+
+  <main id="appMain" style="display:block">
     <!-- الشركات -->
     <section id="companies" class="active">
       <h1><i class="fas fa-building"></i> الشركات</h1>
@@ -812,8 +968,9 @@
             </div>
 
             <div class="signature">
-              المحاسب / <span style="text-decoration:underline;">-----------</span>
+              المحاسب / <span id="accountantName" style="text-decoration:underline;">-----------</span>
             </div>
+
             <div style="margin-top:14px; text-align:center;">
               <button id="saveIssueBtn" class="btn">
                 <i class="fas fa-folder-plus"></i> حفظ الكل
@@ -903,7 +1060,7 @@
         </div>
 
         <div class="card">
-          <h2 style="margin:0 0 8px 0;">📑 النتائج</h2>
+          <h2 style="margin:0 0 8px 0;"> النتائج</h2>
           <div id="loader" class="loader">جارٍ التحميل...</div>
 
           <div id="resultsArea">
@@ -915,83 +1072,91 @@
               <tfoot id="reportFoot"></tfoot>
             </table>
 
-            <div id="emptyState" class="empty">⚠️ لا توجد بيانات لعرضها — غيّر معايير البحث ثم اضغط "عرض التقرير"</div>
+            <div id="emptyState" class="empty"> لا توجد بيانات لعرضها — غيّر معايير البحث ثم اضغط "عرض التقرير"</div>
           </div>
         </div>
       </div>
     </section>
-    <!-- إعدادات المستخدم -->
-  <section id="userSettings" style="display:none;">
-    <div class="container">
-      <h1><i class="fa-solid fa-address-card"></i> نظام المستخدم</h1>
 
-      <!-- 🟢 يظهر فقط للـ Admin -->
-      <div class="card" id="adminCard" dir="rtl">
-        <h2>➕ تسجيل مستخدم جديد</h2>
-        <form id="userForm">
-          <div class="form-group">
-            <label>الاسم الكامل:</label>
-            <input type="text" id="fullName" required />
+    <section id="userSettings" class="card">
+      <div class="container">
+        <h1><i class="fa-solid fa-address-card"></i> نظام المستخدم</h1>
+
+        <!-- تسجيل مستخدم جديد -->
+        <div id="adminCard">
+          <h3>تسجيل مستخدم جديد</h3>
+          <form id="userForm">
+            <div class="form-group">
+              <label>الاسم الكامل:</label>
+              <input type="text" id="fullName" required />
+            </div>
+
+            <div class="form-group">
+              <label>النوع:</label>
+              <select id="roleSelect" required>
+                <option value="">اختر الصلاحية</option>
+                <option value="admin">مدير (admin)</option>
+                <option value="user">مستخدم عادي (user)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>صورة التوقيع (اختياري):</label>
+              <input id="signatureInput" type="file" accept="image/*" />
+            </div>
+
+            <div class="form-buttons">
+              <button class="btn" type="submit">💾 حفظ المستخدم</button>
+              <button id="clearUsersBtn" class="muted" type="button">🧹 مسح جميع المستخدمين</button>
+            </div>
+          </form>
+
+          <h4>المستخدمين المسجلين</h4>
+          <div class="table-wrapper">
+            <table id="usersTable">
+              <thead>
+                <tr>
+                  <th>اليوزر</th>
+                  <th>الاسم</th>
+                  <th>الصلاحية</th>
+                  <th>التوقيع</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
           </div>
+        </div>
 
-          <div class="form-group">
-            <label>اليوزر:</label>
-            <input type="text" id="username" readonly />
-          </div>
+        <!-- تغيير كلمة المرور -->
+        <div id="passwordCard" style="margin-top:16px">
+          <h3>تغيير كلمة المرور</h3>
+          <form id="changePasswordForm">
+            <div class="form-group">
+              <label>كلمة المرور الحالية:</label>
+              <input id="oldPassword" type="password" required />
+            </div>
+            <div class="form-group">
+              <label>كلمة المرور الجديدة:</label>
+              <input id="newPassword" type="password" required />
+            </div>
+            <div class="form-group">
+              <label>تأكيد كلمة المرور:</label>
+              <input id="confirmPassword" type="password" required />
+            </div>
+            <div class="form-buttons">
+              <button class="btn" type="submit">تحديث كلمة المرور</button>
+              <button id="logoutBtn" type="button" class="muted">تسجيل خروج</button>
+            </div>
+            <p id="passwordStatus" style="font-weight:700;margin-top:8px"></p>
+          </form>
+        </div>
 
-          <div class="form-group">
-            <label>النوع:</label>
-            <select id="role" required>
-              <option value="">اختر الصلاحية</option>
-              <option value="admin">👑 مدير (Admin)</option>
-              <option value="user">👤 مستخدم عادي</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>صورة التوقيع:</label>
-            <input type="file" id="signature" accept="image/*" />
-          </div>
-
-          <button type="submit" class="btn">💾 حفظ المستخدم</button>
-        </form>
-
-        <h3>📋 المستخدمين المسجلين</h3>
-        <table id="usersTable">
-          <thead>
-            <tr>
-              <th>اليوزر</th>
-              <th>الاسم الكامل</th>
-              <th>الصلاحية</th>
-              <th>التوقيع</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+        <div id="devToolsHolder"></div>
       </div>
+    </section>
 
-      <!-- 🟢 يظهر للجميع -->
-      <div class="card" id="passwordCard" dir="rtl" style="margin-top:20px;">
-        <h2>🔑 تغيير كلمة المرور</h2>
-        <form id="changePasswordForm">
-          <div class="form-group">
-            <label>كلمة المرور الحالية:</label>
-            <input type="password" id="oldPassword" required />
-          </div>
-          <div class="form-group">
-            <label>كلمة المرور الجديدة:</label>
-            <input type="password" id="newPassword" required />
-          </div>
-          <div class="form-group">
-            <label>تأكيد كلمة المرور:</label>
-            <input type="password" id="confirmPassword" required />
-          </div>
-          <button type="submit" class="btn">✅ تحديث كلمة المرور</button>
-        </form>
-        <p id="passwordStatus"></p>
-      </div>
-    </div>
-  </section>
+
+
 
   </main>
   <nav class="bottom-nav" style="display:none;">
@@ -1993,8 +2158,9 @@
                     </table>
                   </div>
                 </div>
-                <div style="text-align:left; padding:5px; margin-top:10px;">
-                    المحاسب / <span>-----------</span>
+                 <div class="signature">
+              المحاسب / <span id="accountantName" style="text-decoration:underline;">-----------</span>
+            </div>
                   <div style="margin-top:10px;">
                     <img src="file:///E:/SEIF/se.png" style="max-width:120px;" />
                   </div>
@@ -2007,6 +2173,10 @@
 
       doc.close();
 
+      if (currentUser && currentUser.fullName) {
+        const accountantSpan = w.document.getElementById("accountantName");
+        if (accountantSpan) accountantSpan.textContent = currentUser.fullName;
+      }
       const tbodyWithdrawals = w.document.getElementById("withdrawals-tbody");
       const tbodyReceipts = w.document.getElementById("receipts-tbody");
       const tbodyBalances = w.document.getElementById("balances-tbody");
@@ -2436,140 +2606,388 @@
         window.runReport = runReport;
       }
 
-      // (اختياري) تحميل تلقائي عند فتح الصفحة — فك التعليق إن أردت
       // runReport();
     });
     //////////////////////////////////////////////////////////
-  const loginForm = document.getElementById("loginForm");
-  const loginSection = document.getElementById("loginSection");
-  const appMain = document.getElementById("appMain");
-  const bottomNav = document.querySelector(".bottom-nav");
-  const loginStatus = document.getElementById("loginStatus");
+    const loginForm = document.getElementById("loginForm");
+    const loginSection = document.getElementById("loginSection");
+    const appMain = document.getElementById("appMain");
+    const bottomNav = document.querySelector(".bottom-nav");
+    const loginStatus = document.getElementById("loginStatus");
+    const adminCard = document.getElementById("adminCard");
+    const passwordCard = document.getElementById("passwordCard");
+    const usersTableBody = document.querySelector("#usersTable tbody");
+    const userForm = document.getElementById("userForm");
+    const signatureInput = document.getElementById("signatureInput");
+    const roleSelect = document.getElementById("roleSelect");
+    const fullNameInput = document.getElementById("fullName");
+    const changePasswordForm = document.getElementById("changePasswordForm");
+    const passwordStatus = document.getElementById("passwordStatus");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const devToolsHolder = document.getElementById("devToolsHolder");
+    const clearUsersBtn = document.getElementById("clearUsersBtn");
 
-  let currentUser = null; // نخزن بيانات المستخدم هنا
+    let currentUser = null;
+    let currentUserKey = null;
+    let editUserKey = null;
+    let isEditing = false;
 
-  loginForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const username = document.getElementById("loginUsername").value.trim();
-    const password = document.getElementById("loginPassword").value.trim();
-
-    const usersRef = ref(db, "users");
-    const snapshot = await get(usersRef);
-
-    if (snapshot.exists()) {
-      const users = Object.values(snapshot.val());
-      const found = users.find(user => user.username === username && user.password === password);
-
-      if (found) {
-        currentUser = found;
-
-        // ✅ إظهار النظام
-        loginSection.style.display = "none";
-        appMain.style.display = "block";
-        bottomNav.style.display = "flex";
-
-        // 🔑 لو أدمن → إظهر كارت الإضافة
-        if (found.role === "admin") {
-          document.getElementById("adminCard").style.display = "block";
-        } else {
-          document.getElementById("adminCard").style.display = "none";
-        }
-
-      } else {
-        loginStatus.textContent = "❌ بيانات الدخول غير صحيحة";
-      }
-    } else {
-      loginStatus.textContent = "⚠️ لا يوجد مستخدمين مسجلين";
-    }
-  });
-
-  // ---------------------- إضافة مستخدم جديد (Admins) ----------------------
-  const userForm = document.getElementById("userForm");
-  const usersTableBody = document.querySelector("#usersTable tbody");
-
-  userForm?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const fullName = document.getElementById("fullName").value.trim();
-    const username = document.getElementById("username").value.trim();
-    const role = document.getElementById("role").value;
-    const signature = document.getElementById("signature").files[0];
-
-    if (!fullName || !username || !role) {
-      alert("⚠️ يرجى إدخال جميع البيانات");
-      return;
-    }
-
-    let signatureURL = "";
-    if (signature) {
-      signatureURL = URL.createObjectURL(signature);
-    }
-
-    const newUserRef = push(ref(db, "users"));
-    await set(newUserRef, {
-      fullName,
-      username,
-      password: username, // الباسورد = اليوزر
-      role,
-      signatureURL
-    });
-
-    alert("✅ تم إضافة المستخدم بنجاح");
-    userForm.reset();
-  });
-
-  // تحديث جدول المستخدمين
-  onValue(ref(db, "users"), (snapshot) => {
-    usersTableBody.innerHTML = "";
-    if (snapshot.exists()) {
-      const users = snapshot.val();
-      Object.values(users).forEach(user => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${user.username}</td>
-          <td>${user.fullName}</td>
-          <td>${user.role}</td>
-          <td>${user.signatureURL ? `<img src="${user.signatureURL}" width="40" />` : "-"}</td>
-        `;
-        usersTableBody.appendChild(tr);
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        if (!file) return resolve("");
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (e) => reject(e);
+        reader.readAsDataURL(file);
       });
     }
-  });
 
-  // ---------------------- تغيير كلمة المرور ----------------------
-  const changePasswordForm = document.getElementById("changePasswordForm");
-  const passwordStatus = document.getElementById("passwordStatus");
-
-  changePasswordForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const oldPassword = document.getElementById("oldPassword").value.trim();
-    const newPassword = document.getElementById("newPassword").value.trim();
-    const confirmPassword = document.getElementById("confirmPassword").value.trim();
-
-    if (oldPassword !== currentUser.password) {
-      passwordStatus.textContent = "❌ كلمة المرور الحالية غير صحيحة";
-      return;
-    }
-    if (newPassword !== confirmPassword) {
-      passwordStatus.textContent = "❌ كلمتا المرور غير متطابقتين";
-      return;
-    }
-
-    // تحديث الباسورد في Firebase
-    const usersRef = ref(db, "users");
-    const snapshot = await get(usersRef);
-
-    if (snapshot.exists()) {
-      const users = snapshot.val();
-      const userKey = Object.keys(users).find(key => users[key].username === currentUser.username);
-
-      if (userKey) {
-        await update(ref(db, `users/${userKey}`), { password: newPassword });
-        passwordStatus.textContent = "✅ تم تحديث كلمة المرور بنجاح";
-        currentUser.password = newPassword;
+    const SUPERDEV_USERNAME = "SEIF";
+    const SUPERDEV_PASSWORD = "SEIF@1999";
+    async function ensureSuperdev() {
+      const s = await get(ref(db, "users"));
+      if (!s.exists()) {
+        const newRef = push(ref(db, "users"));
+        await set(newRef, {
+          fullName: "مبرمج النظام",
+          username: SUPERDEV_USERNAME,
+          password: SUPERDEV_PASSWORD,
+          role: "superdev",
+          signatureURL: ""
+        });
+        console.log("superdev created");
+        return;
+      }
+      const users = s.val();
+      const found = Object.values(users).some(u => String(u.username).toLowerCase() === SUPERDEV_USERNAME);
+      if (!found) {
+        const newRef = push(ref(db, "users"));
+        await set(newRef, {
+          fullName: "مبرمج النظام",
+          username: SUPERDEV_USERNAME,
+          password: SUPERDEV_PASSWORD,
+          role: "superdev",
+          signatureURL: ""
+        });
+        console.log("superdev created (missing)");
       }
     }
-  });
+    ensureSuperdev().catch(console.error);
+
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      loginStatus.textContent = "";
+
+      const username = document.getElementById("loginUsername").value.trim();
+      const password = document.getElementById("loginPassword").value.trim();
+      const rememberMe = document.getElementById("rememberMe").checked;
+
+      if (!username || !password) {
+        loginStatus.textContent = "أدخل اسم مستخدم وكلمة مرور";
+        return;
+      }
+
+      const snap = await get(ref(db, "users"));
+      if (!snap.exists()) {
+        loginStatus.textContent = "لا يوجد مستخدمين مسجلين";
+        return;
+      }
+
+      const users = snap.val();
+      const key = Object.keys(users).find(
+        k => users[k].username === username && users[k].password === password
+      );
+
+      if (!key) {
+        loginStatus.textContent = "بيانات الدخول غير صحيحة";
+        return;
+      }
+
+      currentUserKey = key;
+      currentUser = users[key];
+
+      if (rememberMe) {
+        localStorage.setItem("erpUser", JSON.stringify({
+          key: currentUserKey,
+          username: currentUser.username,
+          password: currentUser.password
+        }));
+      }
+
+      openSystem();
+    });
+
+    function addDevTools() {
+      removeDevTools();
+      const el = document.createElement("div");
+      el.className = "dev-tools";
+      el.id = "devTools";
+      el.innerHTML = `
+        <h3>🛠 أدوات المبرمج (خاص بك)</h3>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button id="btnDumpUsers" class="muted"> تنزيل قائمة المستخدمين (console)</button>
+          <button id="btnResetDemo" class="muted"> إعادة ضبط بيانات تجريبية</button>
+          <button id="btnDeleteTest" class="muted"> مسح المستخدمين التجريبيين</button>
+        </div>
+        <p style="margin-top:8px;color:#444">تحذير: بعض العمليات تؤثر على قاعدة البيانات</p>
+      `;
+      devToolsHolder.appendChild(el);
+
+      document.getElementById("btnDumpUsers").addEventListener("click", async () => {
+        const s = await get(ref(db, "users"));
+        console.log("USERS DUMP:", s.exists() ? s.val() : {});
+        alert("تم طباعة المستخدمين في console");
+      });
+
+      document.getElementById("btnResetDemo").addEventListener("click", async () => {
+        if (!confirm("هل تريد حقًا إنشاء بعض المستخدمين التجريبيين؟")) return;
+        for (let i = 1; i <= 3; i++) {
+          const uname = `ERP${String(Math.floor(Math.random() * 90) + 10)}`;
+          const r = push(ref(db, "users"));
+          await set(r, { fullName: `Demo ${i}`, username: uname, password: uname, role: "user", signatureURL: "" });
+        }
+        alert("تم إنشاء مستخدمين تجريبيين");
+      });
+
+      document.getElementById("btnDeleteTest").addEventListener("click", async () => {
+        if (!confirm("مسح المستخدمين التجريبيين (role=user)؟ موافق؟")) return;
+        const s = await get(ref(db, "users"));
+        if (!s.exists()) return alert("لا يوجد مستخدمين");
+        const users = s.val();
+        const keys = Object.keys(users).filter(k => users[k].role === "user");
+        for (const k of keys) {
+          await remove(ref(db, `users/${k}`));
+        }
+        alert("تم حذف المستخدمين الاعتياديين (role=user)");
+      });
+    }
+
+    function removeDevTools() {
+      const ex = document.getElementById("devTools");
+      if (ex) ex.remove();
+    }
+
+    userForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!currentUser) return alert("يجب تسجيل الدخول كأدمن أو مبرمج لإدارة المستخدمين");
+
+      if (!(currentUser.role === "admin" || currentUser.role === "superdev")) {
+        return alert("غير مسموح: تحتاج صلاحية admin أو superdev");
+      }
+
+      const fullName = fullNameInput.value.trim();
+      const role = roleSelect.value;
+      const signatureFile = signatureInput.files[0] || null;
+      if (!fullName || !role) return alert("اكمل الحقول المطلوبة");
+
+      if (role === "superdev" && currentUser.role !== "superdev") {
+        return alert("لا يمكنك إنشاء حساب superdev — فقط المبرمج يمكنه ذلك");
+      }
+
+      const signatureData = signatureFile ? await fileToBase64(signatureFile) : "";
+
+      if (isEditing && editUserKey) {
+        // تحديث مستخدم موجود
+        await update(ref(db, `users/${editUserKey}`), {
+          fullName,
+          role,
+          ...(signatureData && { signatureURL: signatureData })
+        });
+
+        alert("✅ تم تحديث بيانات المستخدم");
+        resetUserForm();
+      } else {
+        // إضافة مستخدم جديد
+        const s = await get(ref(db, "users"));
+        let count = 0;
+        if (s.exists()) count = Object.keys(s.val()).length;
+        const newUsername = `ERP${String(count + 1).padStart(2, "0")}`;
+
+        const newRef = push(ref(db, "users"));
+        await set(newRef, {
+          fullName,
+          username: newUsername,
+          password: newUsername,
+          role,
+          signatureURL: signatureData
+        });
+
+        alert(`تم إنشاء المستخدم بنجاح: ${newUsername} (كلمة المرور هي نفسها)`);
+        resetUserForm();
+      }
+    });
+
+    // استعراض المستخدمين + تمكين التعديل
+    onValue(ref(db, "users"), (snap) => {
+      usersTableBody.innerHTML = "";
+      if (!snap.exists()) {
+        usersTableBody.innerHTML = `<tr><td colspan="4">لا توجد بيانات</td></tr>`;
+        return;
+      }
+      const users = snap.val();
+      Object.keys(users).forEach(key => {
+        const u = users[key];
+        if (u.role === "superdev") return;
+
+        const tr = document.createElement("tr");
+        const sig = u.signatureURL ? `<img class="signature-preview" src="${u.signatureURL}" />` : "-";
+        tr.innerHTML = `<td>${u.username || "-"}</td><td>${u.fullName || "-"}</td><td>${u.role || "-"}</td><td>${sig}</td>`;
+
+        // عند الضغط على صف → تعديل
+        tr.addEventListener("click", () => {
+          editUserKey = key;
+          isEditing = true;
+          fullNameInput.value = u.fullName || "";
+          roleSelect.value = u.role || "";
+          userForm.querySelector("button[type=submit]").textContent = "💾 تحديث المستخدم";
+
+          // إضافة زر إلغاء التعديل لو مش موجود
+          if (!document.getElementById("cancelEditBtn")) {
+            const cancelBtn = document.createElement("button");
+            cancelBtn.type = "button";
+            cancelBtn.id = "cancelEditBtn";
+            cancelBtn.textContent = "❌ إلغاء";
+            cancelBtn.className = "muted";
+            cancelBtn.style.marginRight = "8px";
+            cancelBtn.addEventListener("click", resetUserForm);
+            userForm.insertBefore(cancelBtn, userForm.querySelector("button[type=submit]"));
+          }
+        });
+
+        usersTableBody.appendChild(tr);
+      });
+    });
+
+    // دالة إرجاع الفورم لوضع الإضافة
+    function resetUserForm() {
+      userForm.reset();
+      editUserKey = null;
+      isEditing = false;
+      const submitBtn = userForm.querySelector("button[type=submit]");
+      if (submitBtn) submitBtn.textContent = "💾 حفظ المستخدم";
+      const cancelBtn = document.getElementById("cancelEditBtn");
+      if (cancelBtn) cancelBtn.remove();
+    }
+    changePasswordForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      passwordStatus.textContent = "";
+
+      if (!currentUserKey) { passwordStatus.textContent = "يجب تسجيل الدخول"; return; }
+
+      const oldPassword = document.getElementById("oldPassword").value.trim();
+      const newPassword = document.getElementById("newPassword").value.trim();
+      const confirmPassword = document.getElementById("confirmPassword").value.trim();
+
+      if (oldPassword !== currentUser.password) { passwordStatus.textContent = "كلمة المرور الحالية غير صحيحة"; return; }
+      if (newPassword.length < 4) { passwordStatus.textContent = "كلمة المرور قصيرة جداً"; return; }
+      if (newPassword !== confirmPassword) { passwordStatus.textContent = "التأكيد غير مطابق"; return; }
+
+      await update(ref(db, `users/${currentUserKey}`), { password: newPassword });
+      currentUser.password = newPassword;
+      passwordStatus.style.color = "green";
+      passwordStatus.textContent = "✅ تم تحديث كلمة المرور بنجاح";
+      changePasswordForm.reset();
+      setTimeout(() => passwordStatus.textContent = "", 3500);
+    });
+
+    logoutBtn.addEventListener("click", () => {
+      localStorage.removeItem("erpUser");
+      currentUser = null;
+      currentUserKey = null;
+      document.body.classList.remove("logged-in");
+      loginSection.style.display = "flex";
+      appMain.style.display = "block";
+      bottomNav.style.display = "none";
+      adminCard.style.display = "none";
+      passwordCard.style.display = "none";
+      removeDevTools();
+      document.getElementById("loginUsername").value = "";
+      document.getElementById("loginPassword").value = "";
+      loginStatus.textContent = "";
+      passwordStatus.textContent = "";
+    });
+
+    clearUsersBtn.addEventListener("click", async () => {
+      if (!currentUser) return alert("سجل دخول أولا");
+      if (currentUser.role !== "superdev") return alert("فقط المبرمج يمكنه مسح المستخدمين بهذه الطريقة");
+      if (!confirm("تحذير! سيتم حذف جميع المستخدمين من قاعدة البيانات (بما فيهم admin) — هل أنت متأكد؟")) return;
+      const s = await get(ref(db, "users"));
+      if (!s.exists()) return alert("لا يوجد مستخدمين");
+      const users = s.val();
+      for (const k of Object.keys(users)) {
+        await remove(ref(db, `users/${k}`));
+      }
+      await ensureSuperdev();
+      alert("تم حذف جميع المستخدمين وإعادة إنشاء superdev");
+    });
+
+    document.querySelectorAll(".bottom-nav button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".bottom-nav button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        appMain.querySelectorAll("section").forEach(sec => sec.style.display = "none");
+        if (btn.dataset.target) {
+          const target = document.getElementById(btn.dataset
+            .target);
+          if (target) target.style.display = "block";
+        }
+
+      });
+    });
+    // ======= فتح السيستم (تجميع مشترك) =======
+    function openSystem() {
+      document.body.classList.add("logged-in");
+      loginSection.style.display = "none";
+      appMain.style.display = "block";
+      bottomNav.style.display = "flex";
+      bottomNav.setAttribute("aria-hidden", "false");
+
+      if (currentUser.role === "admin" || currentUser.role === "superdev") {
+        adminCard.style.display = "block";
+      } else {
+        adminCard.style.display = "none";
+      }
+      passwordCard.style.display = "block";
+
+      if (currentUser.role === "superdev" || currentUser.username === SUPERDEV_USERNAME) {
+        addDevTools();
+      } else {
+        removeDevTools();
+      }
+
+      // تحديث اسم المحاسب
+      updateAccountantName();
+    }
+    // ======= استرجاع مستخدم محفوظ لو موجود =======
+    window.addEventListener("DOMContentLoaded", async () => {
+      const saved = localStorage.getItem("erpUser");
+      if (saved) {
+        const savedUser = JSON.parse(saved);
+        const snap = await get(ref(db, "users"));
+        if (snap.exists()) {
+          const users = snap.val();
+          if (users[savedUser.key] &&
+            users[savedUser.key].username === savedUser.username &&
+            users[savedUser.key].password === savedUser.password) {
+            currentUserKey = savedUser.key;
+            currentUser = users[savedUser.key];
+            openSystem();
+          }
+        }
+      }
+    });
+
+    // بعد تسجيل الدخول أو عند فتح النظام
+    function updateAccountantName() {
+      const nameSpan = document.getElementById("accountantName");
+      if (currentUser && currentUser.fullName) {
+        nameSpan.textContent = currentUser.fullName;
+      } else {
+        nameSpan.textContent = "-----------";
+      }
+    }
+
+
 
   </script>
 
