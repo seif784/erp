@@ -1,0 +1,2578 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ERP - Firebase Realtime CRUD</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+  <style>
+    :root {
+      --main: #0b74ff;
+      --main-light: #e6f0ff;
+      --bg: #f4f6fb;
+      --card: #fff;
+      --shadow: rgba(0, 0, 0, 0.08);
+      font-family: "Segoe UI", Tahoma, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      min-height: 100vh;
+    }
+
+    main {
+      padding: 20px;
+    }
+
+    section {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 30px 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 25px var(--shadow);
+      transition: transform 0.3s, opacity 0.3s;
+      display: none;
+    }
+
+    section.active {
+      display: block;
+    }
+
+    h1 {
+      color: var(--main);
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+
+    form {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 16px;
+      outline: none;
+      box-sizing: border-box;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    .btn {
+      background: linear-gradient(90deg, var(--main), #1c9fff);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 20px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.3s;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(11, 116, 255, 0.4);
+    }
+
+    .muted {
+      background: #f2f5fa;
+      color: #333;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 20px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .muted:hover {
+      background: #e6eaf1;
+    }
+
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--main-light);
+      padding: 12px 15px;
+      border-radius: 12px;
+      transition: all 0.3s;
+    }
+
+    .item:hover {
+      background: #dbe9ff;
+    }
+
+    .meta {
+      font-size: 15px;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-around;
+      background: var(--card);
+      box-shadow: 0 -6px 20px var(--shadow);
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+      padding: 10px 0;
+      z-index: 50;
+    }
+
+    .bottom-nav button {
+      background: none;
+      border: 0;
+      flex: 1;
+      font-size: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      color: #666;
+      transition: 0.3s;
+    }
+
+    .bottom-nav button.active {
+      color: var(--main);
+      font-weight: bold;
+      transform: translateY(-4px);
+    }
+
+    .bottom-nav span.icon {
+      font-size: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      margin-top: 15px;
+    }
+
+    table th,
+    table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+
+    table th {
+      background-color: var(--main);
+      color: white;
+    }
+
+    table tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    table tr:hover {
+      background-color: #dbe9ff;
+    }
+
+    table thead tr {
+      background-color: #f4c29a !important;
+    }
+
+    table thead tr th {
+      background-color: #f4c29a !important;
+      color: #000 !important;
+      font-weight: bold;
+    }
+
+    .total {
+      text-align: right;
+      font-weight: bold;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 15px 20px;
+      background: #e6f0ff;
+      border-radius: 10px;
+      margin: 20px 0;
+    }
+
+    .header-right {
+      font-size: 20px;
+      font-weight: bold;
+      text-align: right;
+    }
+
+    .header-left {
+      text-align: left;
+      font-size: 14px;
+    }
+
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--card);
+      padding: 14px;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .small {
+      font-size: 13px;
+    }
+
+    .flex {
+      display: flex;
+      gap: 0;
+    }
+
+    .signature {
+      margin-top: 16px;
+      text-align: left;
+      font-weight: 700;
+    }
+
+    @media (max-width:880px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .tables-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      margin-top: 0;
+      align-items: start;
+      border: 1px solid #ddd;
+    }
+
+    .tables-wrap>div {
+      margin: 0;
+      padding: 0;
+    }
+
+    .tables-wrap>div table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    .tables-wrap>div:first-child table {
+      border-right: none;
+    }
+
+    .tables-wrap>div:last-child table {
+      border-left: none;
+    }
+
+    @media (max-width: 880px) {
+      .tables-wrap {
+        grid-template-columns: 1fr;
+      }
+
+      .tables-wrap>div:first-child table {
+        border-right: 1px solid #ddd;
+      }
+
+      .tables-wrap>div:last-child table {
+        border-left: 1px solid #ddd;
+      }
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 10px;
+      align-items: end;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .summary {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .tile {
+      flex: 1 1 220px;
+      padding: 12px;
+      border-radius: 8px;
+      background: linear-gradient(180deg, #fff, #f8fbff);
+      box-shadow: 0 2px 8px rgba(10, 20, 40, 0.03);
+    }
+
+    .tile h3 {
+      margin: 0;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .tile p {
+      margin: 6px 0 0 0;
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    tfoot td {
+      font-weight: 700;
+      background: #f5f7fb;
+    }
+
+    .loader {
+      text-align: center;
+      padding: 16px;
+      color: var(--muted);
+      display: none;
+    }
+
+    .empty {
+      padding: 26px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    @media (max-width:700px) {
+      .summary {
+        flex-direction: column;
+      }
+
+      th,
+      td {
+        font-size: 13px;
+        padding: 6px;
+      }
+    }
+
+    /* ================== خلفية أساسية ================== */
+    body {
+      margin: 0;
+      font-family: "Tahoma", sans-serif;
+      background: linear-gradient(135deg, #d9e4f5, #f5f7fa);
+      min-height: 100vh;
+    }
+
+    /* ================== شاشة تسجيل الدخول ================== */
+    #loginSection {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 9999;
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 400px;
+      padding: 20px;
+    }
+
+    .login-card {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      backdrop-filter: blur(15px);
+      padding: 30px 25px;
+      text-align: center;
+      color: #000;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    .login-card h1 {
+      margin-bottom: 25px;
+      font-size: 24px;
+      font-weight: bold;
+      color: #222;
+    }
+
+    .input-group {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.25);
+      border-radius: 8px;
+      margin-bottom: 15px;
+      padding: 10px;
+    }
+
+    .input-group i {
+      margin-right: 10px;
+      color: #555;
+    }
+
+    .input-group input {
+      border: none;
+      outline: none;
+      background: transparent;
+      color: #000;
+      width: 100%;
+      font-size: 14px;
+    }
+
+    .input-group input::placeholder {
+      color: #777;
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(90deg, #0078d7, #005bb5);
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-login:hover {
+      transform: translateY(-2px);
+      background: linear-gradient(90deg, #0064b5, #004d99);
+    }
+
+    .btn-login:active {
+      transform: scale(0.97);
+    }
+
+    #loginStatus {
+      margin-top: 12px;
+      font-size: 14px;
+      color: #d33;
+      font-weight: bold;
+    }
+
+    /* ================== حالة قبل تسجيل الدخول ================== */
+    #appMain,
+    .bottom-nav {
+      filter: blur(8px);
+      opacity: 0.5;
+      pointer-events: none;
+      user-select: none;
+      transition: all 0.4s ease;
+      display: none;
+    }
+
+    /* ================== بعد تسجيل الدخول ================== */
+    body.logged-in #appMain,
+    body.logged-in .bottom-nav {
+      filter: none;
+      opacity: 1;
+      pointer-events: auto;
+      user-select: auto;
+      display: block;
+      animation: fadeInUp 0.7s ease-out;
+    }
+
+    /* ================== أنيميشن ================== */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="loginSection"
+  style="position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background-color: rgba(253, 253, 253, 0.8); z-index: 9999;
+  display: flex; align-items: center; justify-content: center;">
+
+  <div class="login-card">
+    <h1><i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول</h1>
+    <form id="loginForm">
+      <div class="input-group">
+        <i class="fa-solid fa-user"></i>
+        <input type="text" id="loginUsername" placeholder="اسم المستخدم" required />
+      </div>
+      <div class="input-group">
+        <i class="fa-solid fa-lock"></i>
+        <input type="password" id="loginPassword" placeholder="كلمة المرور" required />
+      </div>
+      <button type="submit" class="btn-login">➡️ دخول</button>
+    </form>
+    <p id="loginStatus"></p>
+  </div>
+</div>
+
+  <main id="appMain" style="display:none;">
+    <!-- الشركات -->
+    <section id="companies" class="active">
+      <h1><i class="fas fa-building"></i> الشركات</h1>
+      <form id="companiesForm">
+        <input type="hidden" id="companies-docId" />
+        <input id="companies-name" placeholder="ar اسم الشركة" required />
+        <input id="companies-name-english" placeholder="eg اسم الشركة" required />
+        <input id="companies-code" placeholder="كود الشركة" />
+        <button type="submit" class="btn"><i class="fas fa-save"></i> حفظ</button>
+        <button type="button" class="muted clear-btn"><i class="fas fa-eraser"></i> مسح</button>
+      </form>
+      <div id="companies-status" style="font-size:14px;color:#555"></div>
+      <div id="companies-list" class="list"></div>
+    </section>
+
+    <!-- المشاريع -->
+    <section id="projects">
+      <h1><i class="fas fa-building-columns"></i> المشاريع</h1>
+      <form id="projectsForm">
+        <input type="hidden" id="projects-docId" />
+        <input id="projects-name" placeholder="اسم المشروع" required />
+        <input id="projects-code" placeholder="كود المشروع" />
+        <button type="submit" class="btn"><i class="fas fa-save"></i> حفظ</button>
+        <button type="button" class="muted clear-btn"><i class="fas fa-eraser"></i> مسح</button>
+      </form>
+      <div id="projects-status" style="font-size:14px;color:#555"></div>
+      <div id="projects-list" class="list"></div>
+    </section>
+
+    <!-- البنوك -->
+    <section id="banks">
+      <h1><i class="fas fa-university"></i> البنوك</h1>
+      <form id="banksForm">
+        <input type="hidden" id="banks-docId" />
+        <input id="banks-name" placeholder="اسم البنك" required />
+        <input id="banks-code" placeholder="كود البنك" />
+        <button type="submit" class="btn"><i class="fas fa-save"></i> حفظ</button>
+        <button type="button" class="muted clear-btn"><i class="fas fa-eraser"></i> مسح</button>
+      </form>
+      <div id="banks-status" style="font-size:14px;color:#555"></div>
+      <div id="banks-list" class="list"></div>
+    </section>
+
+    <!-- المستفيدون -->
+    <section id="beneficiaries">
+      <h1><i class="fas fa-users"></i> المستفيدون</h1>
+      <form id="beneficiariesForm">
+        <input type="hidden" id="beneficiaries-docId" />
+        <input id="beneficiaries-name" placeholder="اسم المستفيد" required />
+        <input id="beneficiaries-code" placeholder="كود المستفيد" />
+        <button type="submit" class="btn"><i class="fas fa-save"></i> حفظ</button>
+        <button type="button" class="muted clear-btn"><i class="fas fa-eraser"></i> مسح</button>
+      </form>
+      <div id="beneficiaries-status" style="font-size:14px;color:#555"></div>
+      <div id="beneficiaries-list" class="list"></div>
+    </section>
+
+    <!-- ===================== العمليات المالية (محدث) ===================== -->
+    <section id="transactions">
+      <div class="wrap">
+        <h1><i class="fas fa-money-bill-wave"></i> نظام ERP - العمليات المالية</h1>
+        <div class="grid">
+          <div class="card" dir="rtl">
+
+            <label>التاريخ
+              <input id="txDateInput" type="date" required />
+            </label>
+            <label>رقم المستند
+              <input id="txIssueInput" type="number" placeholder="مثال: 1" />
+            </label>
+            <label>الشركة
+              <select id="companySelectInput">
+                <option value="">اختر الشركة</option>
+              </select>
+            </label>
+            <hr />
+
+            <form id="moneyEntryForm">
+
+              <label>نوع الحركة
+                <select id="movementType">
+                  <option value="">اختر نوع الحركة</option>
+                  <option value="deposit">قبض</option>
+                  <option value="withdraw">صرف</option>
+                </select>
+              </label>
+
+              <!-- عند اختيار قبض -->
+              <div id="depositFields" style="display:none;">
+                <label>رقم سند القبض
+                  <input id="receiptNoInput" type="text" placeholder="رقم سند القبض" />
+                </label>
+                <label>قيمة سند القبض (إن وُجد)
+                  <input id="receiptValueInput" type="number" placeholder="قيمة السند" />
+                </label>
+                <label>شرح الدفعة
+                  <input id="paymentDescInput" type="text" placeholder="شرح الدفعة" />
+                </label>
+                <label>البنك
+                  <select id="bankSelectInputDeposit">
+                    <option value="">اختر البنك</option>
+                  </select>
+                </label>
+              </div>
+
+              <!-- عند اختيار صرف يظهر نوع الصرف -->
+              <div id="withdrawOptions" style="display:none;">
+                <label>نوع الصرف
+                  <select id="withdrawType">
+                    <option value="">اختر</option>
+                    <option value="cheque">شيك</option>
+                    <option value="transfer">حوالة</option>
+                  </select>
+                </label>
+              </div>
+
+              <div id="chequeFields" style="display:none;">
+                <label>رقم الشيك
+                  <input id="chequeNoInput" type="text" placeholder="رقم الشيك" />
+                </label>
+                <label>مبررات الدفع
+                  <input id="reasonInputNew" type="text" placeholder="مبررات الدفع" />
+                </label>
+                <label>المبلغ (المطلوب دفعه)
+                  <input id="amountInput" type="number" placeholder="المبلغ" />
+                </label>
+              </div>
+
+              <div id="transferFields" style="display:none;">
+                <label>الحوالة
+                  <input type="text" value="حوالة ثابتة" readonly />
+                </label>
+                <label>مبررات الدفع
+                  <input id="reasonInputTransfer" type="text" placeholder="مبررات الدفع" />
+                </label>
+                <label>المبلغ (المطلوب دفعه)
+                  <input id="amountInputTransfer" type="number" placeholder="المبلغ" />
+                </label>
+              </div>
+
+              <div id="withdrawExtra" style="display:none;">
+                <label>البنك
+                  <select id="bankSelectInput">
+                    <option value="">اختر البنك</option>
+                  </select>
+                </label>
+                <label>المستفيد
+                  <select id="beneficiarySelectInput">
+                    <option value="">اختر المستفيد</option>
+                  </select>
+                </label>
+                <label>المشروع
+                  <select id="projectSelectInput">
+                    <option value="">اختر المشروع</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="flex" style="margin-top:8px;">
+                <button type="submit" class="btn" style="flex:1"><i class="fas fa-save"></i> أضف و احفظ</button>
+                <button type="button" id="clearEntryBtn" class="muted" style="flex:1">حذف</button>
+              </div>
+            </form>
+
+          </div>
+
+          <div class="card" dir="rtl">
+            <table class="header-table"
+              style="width:100%; background:#3f89f862; color:#000000a8; border-radius:8px; overflow:hidden;">
+              <tr>
+                <td style="text-align:right; padding:10px;"><span id="erpCompanyName">0</span></td>
+                <td style="text-align:center; padding:10px;">الإصدارات: <span id="erpIssueYearDisplay"></span></td>
+                <td style="text-align:left; padding:10px;"><span id="erpCompanyNameEnglish">0</span></td>
+              </tr>
+            </table>
+
+            <table id="erpTable">
+              <thead>
+                <tr>
+                  <td style="font-weight:600"> التاريخ: <span id="erpTxDate">00/00/0000</span></td>
+                  <td colspan="5"></td>
+                  <td style="font-weight:600">رقم الإصدار: <span id="erpTxIssue">0</span></td>
+                </tr>
+                <tr>
+                  <th>م</th>
+                  <th>رقم الشيك</th>
+                  <th>المطلوب للدفعة</th>
+                  <th>البنك</th>
+                  <th>المستفيد</th>
+                  <th>مبررات الصرف </th>
+                  <th>المشروع</th>
+                </tr>
+              </thead>
+              <tbody id="erpTbody"></tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="2" style="text-align:right; font-weight:800; background:#f2f8ff">الإجمالي</td>
+                  <td id="erpTotal" style="font-weight:800; text-align:center; background:#f2f8ff">0</td>
+                  <td colspan="4"></td>
+                </tr>
+              </tfoot>
+            </table>
+
+            <div class="tables-wrap">
+              <div>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>البنك</th>
+                      <th>سند القبض</th>
+                      <th>القيمة</th>
+                      <th>شرح الدفعة</th>
+                    </tr>
+                  </thead>
+                  <tbody id="receiptsByBank">
+                    <tr>
+                      <td colspan="4" class="small">لا توجد بيانات</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div>
+                <table border="1" width="100%">
+                  <thead>
+                    <tr>
+                      <th>البنك</th>
+                      <th>رصيد أول</th>
+                      <th>إيداع</th>
+                      <th>إجمالي بعد الإيداع</th>
+                      <th>سحب</th>
+                      <th>الرصيد الحالي</th>
+                    </tr>
+                  </thead>
+                  <tbody id="balancesByBankBody">
+                    <tr>
+                      <td colspan="6" class="small">لا توجد بيانات</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+              </div>
+            </div>
+
+            <div class="signature">
+              المحاسب / <span style="text-decoration:underline;">-----------</span>
+            </div>
+            <div style="margin-top:14px; text-align:center;">
+              <button id="saveIssueBtn" class="btn">
+                <i class="fas fa-folder-plus"></i> حفظ الكل
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="transactionQuery">
+      <div class="container">
+        <h1><i class="fa-solid fa-money-bill-trend-up"></i> نظام ERP - استعلام العمليات المالية</h1>
+        <div class="card" aria-live="polite">
+          <div class="small">اختر معايير البحث أو اترك الحقول فارغة للبحث الشامل</div>
+
+          <div class="controls-grid" style="margin-top:10px;">
+            <div>
+              <label>نوع التقرير</label>
+              <select id="queryType">
+                <option value="all"> الكل</option>
+                <option value="receipts"> سندات القبض</option>
+                <option value="withdraws"> الشيكات / الحوالات</option>
+              </select>
+            </div>
+
+            <div>
+              <label>الشركة</label>
+              <select id="queryCompany">
+                <option value="">الكل</option>
+              </select>
+            </div>
+
+            <div>
+              <label>البنك</label>
+              <select id="queryBank">
+                <option value="">الكل</option>
+              </select>
+            </div>
+
+            <div>
+              <label>من تاريخ</label>
+              <input type="date" id="dateFrom">
+            </div>
+
+            <div>
+              <label>إلى تاريخ</label>
+              <input type="date" id="dateTo">
+            </div>
+
+            <div>
+              <label>بحث نصي (وصف/مستفيد/مشروع)</label>
+              <input type="text" id="textSearch" placeholder="ابحث في الأوصاف، المستفيد، المشروع...">
+            </div>
+          </div>
+          <div class="card" style="margin-top:12px; padding:10px;">
+            <div class="actions">
+              <button id="btnRun" class="btn"><i class="fa-regular fa-eye"></i> عرض التقرير</button>
+              <button id="btnExportExcel" class="btn"><i class="fa-solid fa-file-excel"></i> تصدير Excel</button>
+              <button id="btnExportCSV" class="btn"><i class="fa-solid fa-file-csv"></i> تصدير CSV</button>
+              <button onclick="window.print()" class="btn"><i class="fa-solid fa-print"></i> طباعة</button>
+            </div>
+            <div style="margin-top:8px;">
+              <span id="statusInfo" class="small">جاهز</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" id="summaryCard" style="display:none;">
+          <div class="summary">
+            <div class="tile">
+              <h3>مجموع القبوض</h3>
+              <p id="totalReceipts">0</p>
+              <div class="small">عدد السندات: <span id="countReceipts">0</span></div>
+            </div>
+            <div class="tile">
+              <h3>مجموع السحوبات</h3>
+              <p id="totalWithdraws">0</p>
+              <div class="small">عدد الحركات: <span id="countWithdraws">0</span></div>
+            </div>
+            <div class="tile">
+              <h3>الصافي (قبوض − سحوبات)</h3>
+              <p id="netTotal">0</p>
+              <div class="small">موجَب = صافي دخل، سالب = صافي صرف</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 style="margin:0 0 8px 0;">📑 النتائج</h2>
+          <div id="loader" class="loader">جارٍ التحميل...</div>
+
+          <div id="resultsArea">
+            <table id="reportTable" style="display:none;">
+              <thead>
+                <tr id="reportHeader"></tr>
+              </thead>
+              <tbody id="reportBody"></tbody>
+              <tfoot id="reportFoot"></tfoot>
+            </table>
+
+            <div id="emptyState" class="empty">⚠️ لا توجد بيانات لعرضها — غيّر معايير البحث ثم اضغط "عرض التقرير"</div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- إعدادات المستخدم -->
+  <section id="userSettings" style="display:none;">
+    <div class="container">
+      <h1><i class="fa-solid fa-address-card"></i> نظام المستخدم</h1>
+
+      <!-- 🟢 يظهر فقط للـ Admin -->
+      <div class="card" id="adminCard" dir="rtl">
+        <h2>➕ تسجيل مستخدم جديد</h2>
+        <form id="userForm">
+          <div class="form-group">
+            <label>الاسم الكامل:</label>
+            <input type="text" id="fullName" required />
+          </div>
+
+          <div class="form-group">
+            <label>اليوزر:</label>
+            <input type="text" id="username" readonly />
+          </div>
+
+          <div class="form-group">
+            <label>النوع:</label>
+            <select id="role" required>
+              <option value="">اختر الصلاحية</option>
+              <option value="admin">👑 مدير (Admin)</option>
+              <option value="user">👤 مستخدم عادي</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>صورة التوقيع:</label>
+            <input type="file" id="signature" accept="image/*" />
+          </div>
+
+          <button type="submit" class="btn">💾 حفظ المستخدم</button>
+        </form>
+
+        <h3>📋 المستخدمين المسجلين</h3>
+        <table id="usersTable">
+          <thead>
+            <tr>
+              <th>اليوزر</th>
+              <th>الاسم الكامل</th>
+              <th>الصلاحية</th>
+              <th>التوقيع</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <!-- 🟢 يظهر للجميع -->
+      <div class="card" id="passwordCard" dir="rtl" style="margin-top:20px;">
+        <h2>🔑 تغيير كلمة المرور</h2>
+        <form id="changePasswordForm">
+          <div class="form-group">
+            <label>كلمة المرور الحالية:</label>
+            <input type="password" id="oldPassword" required />
+          </div>
+          <div class="form-group">
+            <label>كلمة المرور الجديدة:</label>
+            <input type="password" id="newPassword" required />
+          </div>
+          <div class="form-group">
+            <label>تأكيد كلمة المرور:</label>
+            <input type="password" id="confirmPassword" required />
+          </div>
+          <button type="submit" class="btn">✅ تحديث كلمة المرور</button>
+        </form>
+        <p id="passwordStatus"></p>
+      </div>
+    </div>
+  </section>
+
+  </main>
+  <nav class="bottom-nav" style="display:none;">
+    <button class="active" data-target="companies"><span class="icon"><i
+          class="fas fa-building"></i></span>شركات</button>
+    <button data-target="projects"><span class="icon"><i class="fas fa-building-columns"></i></span>مشاريع</button>
+    <button data-target="banks"><span class="icon"><i class="fas fa-university"></i></span>بنوك</button>
+    <button data-target="beneficiaries"><span class="icon"><i class="fas fa-users"></i></span>مستفيدين</button>
+    <button data-target="transactions"><span class="icon"><i class="fas fa-money-bill-wave"></i></span>العمليات
+      المالية</button>
+    <button data-target="transactionQuery"><span class="icon"><i
+          class="fa-solid fa-money-bill-trend-up"></i></span>استعلام العمليات المالية</button>
+    <button data-target="userSettings"><span class="icon"><i class="fa-solid fa-address-card"></i></span> اعدادات
+      المستخدم</button>
+  </nav>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, push, set, update, remove, onValue, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    // تكوين Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyA-hflhVtGDfbrPjnURdx6nPcPNXiciTgU",
+      authDomain: "mediator-3a632.firebaseapp.com",
+      databaseURL: "https://broker-94a9d-default-rtdb.firebaseio.com/",
+      projectId: "mediator-3a632",
+      storageBucket: "mediator-3a632.appspot.com",
+      messagingSenderId: "701666523994",
+      appId: "1:701666523994:web:45ecc493446881b3b71163",
+      measurementId: "G-F3DL71D6SV"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const allData = { companies: {}, projects: {}, banks: {}, beneficiaries: {}, transactions: {} };
+
+    // توليد كود متسلسل لكل كيان
+    async function generateSequentialCode(entity) {
+      const snapshot = await get(ref(db, entity));
+      const data = snapshot.val() || {};
+      const codes = Object.values(data).map(d => Number(d.code)).filter(n => !isNaN(n));
+      const maxCode = codes.length ? Math.max(...codes) : 0;
+      return (maxCode + 1).toString();
+    }
+
+    // تحميل القائمة لكل كيان
+    function loadList(entity) {
+      const listEl = document.getElementById(entity + "-list");
+      listEl.innerHTML = "⏳ جاري التحميل...";
+      onValue(ref(db, entity), snapshot => {
+        allData[entity] = snapshot.val() || {};
+        renderList(entity, "");
+      });
+    }
+
+    // عرض القوائم
+    function renderList(entity, keyword) {
+      const listEl = document.getElementById(entity + "-list");
+      const data = allData[entity];
+      if (!data || Object.keys(data).length === 0) {
+        listEl.innerHTML = "⚠️ لا توجد سجلات";
+        return;
+      }
+
+      listEl.innerHTML = "";
+      const sorted = Object.entries(data)
+        .sort(([, a], [, b]) => (b.createdAt || 0) - (a.createdAt || 0))
+        .filter(([, d]) => !keyword || (d.name || "").toLowerCase().includes(keyword.toLowerCase()) || (d.code || "").toLowerCase().includes(keyword.toLowerCase()));
+
+      if (sorted.length === 0) {
+        listEl.innerHTML = "🔍 لا توجد نتائج مطابقة";
+        return;
+      }
+
+      sorted.forEach(([id, d]) => {
+        const div = document.createElement("div");
+        div.className = "item";
+        div.innerHTML = `
+      <div class="meta">
+        <b>${d.name || ""}</b>
+        ${entity === "companies" ? ` — ${d.nameEn || ""}` : ""}
+        — ${d.code || ""}
+      </div>
+      <div>
+        <button class="muted" data-id="${id}" data-act="edit"><i class="fas fa-pen"></i></button>
+        <button class="muted" data-id="${id}" data-act="del"><i class="fas fa-trash"></i></button>
+      </div>`;
+        listEl.appendChild(div);
+      });
+
+      // أزرار التعديل والحذف
+      listEl.querySelectorAll("button[data-act]").forEach(b => {
+        b.addEventListener("click", async () => {
+          const id = b.dataset.id;
+          if (b.dataset.act === "del") {
+            if (confirm("هل تريد الحذف؟")) {
+              await remove(ref(db, `${entity}/${id}`));
+              document.getElementById(entity + "-status").textContent = "تم الحذف 🗑️";
+            }
+          } else {
+            const item = data[id];
+            document.getElementById(entity + "-docId").value = id;
+            document.getElementById(entity + "-name").value = item.name || "";
+            document.getElementById(entity + "-code").value = item.code || "";
+            if (entity === "companies") {
+              document.getElementById("companies-name-english").value = item.nameEn || "";
+            }
+            document.getElementById(entity + "-status").textContent = "وضع التعديل ✏️";
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }
+        });
+      });
+    }
+
+    // مسح الفورم
+    function clearForm(entity) {
+      document.getElementById(entity + "-docId").value = "";
+      document.getElementById(entity + "-name").value = "";
+      document.getElementById(entity + "-code").value = "";
+      document.getElementById(entity + "-status").textContent = "";
+      if (entity === "companies") {
+        document.getElementById("companies-name-english").value = "";
+      }
+    }
+
+    // تهيئة أي كيان
+    function initEntity(entity) {
+      const form = document.getElementById(entity + "Form");
+      const statusEl = document.getElementById(entity + "-status");
+
+      const codeInput = document.getElementById(entity + "-code");
+      if (codeInput) codeInput.readOnly = true;
+
+      form.addEventListener("submit", async e => {
+        e.preventDefault();
+        const name = document.getElementById(entity + "-name").value.trim();
+        const nameEn = (entity === "companies")
+          ? document.getElementById("companies-name-english").value.trim()
+          : "";
+
+        if (!name) {
+          statusEl.textContent = "⚠️ الاسم مطلوب";
+          return;
+        }
+
+        const id = document.getElementById(entity + "-docId").value;
+        let code = document.getElementById(entity + "-code").value;
+
+        if (!id) {
+          code = await generateSequentialCode(entity);
+        }
+
+        const payload = {
+          name,
+          code,
+          updatedAt: Date.now()
+        };
+
+        if (entity === "companies") payload.nameEn = nameEn;
+
+        if (id) {
+          await update(ref(db, `${entity}/${id}`), payload);
+          statusEl.textContent = "تم التحديث ✅";
+        } else {
+          const newRef = push(ref(db, entity));
+          await set(newRef, { ...payload, createdAt: Date.now() });
+          statusEl.textContent = "تمت الإضافة ✅";
+        }
+
+        clearForm(entity);
+      });
+
+      const clearBtn = form.querySelector(".clear-btn");
+      if (clearBtn) clearBtn.addEventListener("click", () => clearForm(entity));
+
+      loadList(entity);
+    }
+
+    // تفعيل جميع الكيانات
+    ["companies", "projects", "banks", "beneficiaries"].forEach(initEntity);
+
+    // التنقل بين الأقسام
+    document.querySelectorAll(".bottom-nav button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("section").forEach(sec => sec.classList.remove("active"));
+        document.querySelectorAll(".bottom-nav button").forEach(b => b.classList.remove("active"));
+        const target = btn.dataset.target;
+        const sec = document.getElementById(target);
+        if (sec) sec.classList.add("active");
+        btn.classList.add("active");
+      });
+    });
+    ////////////////////////////////////////// النظام المالي الخرافي بالشيك /////////////////////
+    const companySelect = document.getElementById("companySelectInput");
+    const bankSelect = document.getElementById("bankSelectInput");
+    const bankSelectDeposit = document.getElementById("bankSelectInputDeposit");
+    const beneficiarySelect = document.getElementById("beneficiarySelectInput");
+    const projectSelect = document.getElementById("projectSelectInput");
+    const moneyForm = document.getElementById("moneyEntryForm");
+    const tbody = document.getElementById("erpTbody");
+    const erpTotalEl = document.getElementById("erpTotal");
+    const erpCompanyNameEl = document.getElementById("erpCompanyName");
+    const erpTxDateEl = document.getElementById("erpTxDate");
+    const erpTxIssueEl = document.getElementById("erpTxIssue");
+    const receiptsByBankEl = document.getElementById("receiptsByBank");
+    const erpIssueDisplayEl = document.getElementById("erpIssueYearDisplay");
+    const displayStart = document.getElementById("displayStart");
+    const displayDeposit = document.getElementById("displayDeposit");
+    const displayWithdraw = document.getElementById("displayWithdraw");
+    const displayAfter = document.getElementById("displayAfter");
+    const displayCurrent = document.getElementById("displayCurrent");
+    const displayBank = document.getElementById("displayBank");
+    const footerCurrent = document.getElementById("footerCurrent");
+    const footerWithdraw = document.getElementById("footerWithdraw");
+    const footerAfter = document.getElementById("footerAfter");
+    const footerDeposit = document.getElementById("footerDeposit");
+    const footerStart = document.getElementById("footerStart");
+    const saveIssueBtn = document.getElementById("saveIssueBtn");
+    const chequeInput = document.getElementById("chequeNoInput");
+    const clearEntryBtn = document.getElementById("clearEntryBtn");
+    const loadIssueInput = document.getElementById("txIssueInput");
+    let transactions = [];
+    let startBalancesByBank = {};
+    // -------------------- دالة تجيب رقم الإصدار التالي --------------------
+    async function getNextIssueNumber() {
+      const lastIssueRef = ref(db, "issues");
+      const snapshot = await get(lastIssueRef);
+
+      if (!snapshot.exists()) return 1; // أول إصدار
+
+      const allIssues = Object.values(snapshot.val());
+      const lastSaved = allIssues.sort((a, b) => b.issueNumber - a.issueNumber)[0];
+      return (lastSaved?.issueNumber || 0) + 1;
+    }
+
+    //----------------------------------- تحميل إصدار -------------------------------
+    async function loadIssue(issueNumber) {
+      try {
+        const issueRef = ref(db, "issues/" + issueNumber);
+        const snapshot = await get(issueRef);
+
+        if (!snapshot.exists()) {
+          startBalancesByBank = {};
+
+          let currentIssue = Number(document.getElementById("txIssueInput").value);
+          if (!currentIssue) {
+            currentIssue = await getNextIssueNumber();
+            document.getElementById("txIssueInput").value = currentIssue;
+          }
+
+          erpTxIssueEl.textContent = currentIssue;
+
+          const lastIssueRef = ref(db, "issues");
+          const lastSnap = await get(lastIssueRef);
+
+          if (lastSnap.exists()) {
+            const allIssues = Object.values(lastSnap.val());
+            const lastSaved = allIssues.sort((a, b) => b.issueNumber - a.issueNumber)[0];
+
+            if (lastSaved && lastSaved.balancesByBank) {
+              startBalancesByBank = JSON.parse(JSON.stringify(lastSaved.balancesByBank));
+            } else {
+              Object.keys(allData.banks || {}).forEach(bankId => {
+                startBalancesByBank[bankId] = 0;
+              });
+            }
+          } else {
+            Object.keys(allData.banks || {}).forEach((bankId, index) => {
+              if (index === 0) {
+                startBalancesByBank[bankId] = 2809428.00; // أول بنك
+              } else {
+                startBalancesByBank[bankId] = 0; // باقي البنوك
+              }
+            });
+          }
+
+          startBalancesByBank["1"] = 2809428.00;
+
+          transactions = [];
+          renderTransactionsTable();
+          updateBalancesSummary();
+          renderReceiptsByBank();
+
+          alert("إصدار جديد. تم ضبط الرصيد الابتدائي ✅");
+          return;
+        }
+
+
+        // إذا الإصدار موجود مسبقًا
+        const issueData = snapshot.val();
+        document.getElementById("txIssueInput").value = issueData.issueNumber;
+        document.getElementById("txDateInput").value = issueData.date || "";
+        erpTxIssueEl.textContent = issueData.issueNumber;
+        erpTxDateEl.textContent = issueData.date || "00/00/0000";
+        erpIssueDisplayEl.textContent = issueData.year || new Date().getFullYear();
+        erpCompanyNameEl.textContent = issueData.companyAr || "-";
+        document.getElementById("erpCompanyNameEnglish").textContent = issueData.companyEn || "-";
+
+        transactions = issueData.transactions || [];
+        startBalancesByBank = JSON.parse(JSON.stringify(issueData.startBalancesByBank || {}));
+
+        // 👉 حتى لو الإصدار قديم، نفرض القيمة للبنك 1
+        startBalancesByBank["1"] = 2809428.00;
+
+        renderTransactionsTable();
+        updateBalancesSummary();
+        renderReceiptsByBank();
+        alert("تم تحميل المستند رقم " + issueNumber + " بنجاح ✅");
+
+      } catch (err) {
+        console.error(err);
+        alert("تعذر تحميل الإصدار");
+      }
+    }
+
+    loadIssueInput.addEventListener("change", () => {
+      const issueNo = Number(loadIssueInput.value);
+      if (!issueNo) {
+        alert("أدخل رقم الإصدار للتحميل");
+        return;
+      }
+      loadIssue(issueNo);
+    });
+
+    //----------------------------------- مساعدة -------------------------------
+    function fillSelect(selectEl, data) {
+      const val = selectEl.value || "";
+      selectEl.innerHTML = '<option value="">اختر</option>';
+      if (!data) return;
+      Object.entries(data).forEach(([id, item]) => {
+        const opt = document.createElement("option");
+        opt.value = id;
+        opt.textContent = item.name || item.code || id;
+        selectEl.appendChild(opt);
+      });
+      selectEl.value = val;
+    }
+
+    function getNameById(data, id) {
+      return (data && data[id]) ? data[id].name || data[id].code || id : id || "";
+    }
+
+    function formatNumber(n) { return (n === null || isNaN(n)) ? "0" : Number(n).toLocaleString(); }
+
+    //----------------------------------- جلب البيانات من Firebase -------------------------------
+    ["companies", "projects", "banks", "beneficiaries"].forEach(entity => {
+      onValue(ref(db, entity), snapshot => {
+        allData[entity] = snapshot.val() || {};
+        fillSelect(companySelect, allData.companies);
+        fillSelect(bankSelect, allData.banks);
+        fillSelect(bankSelectDeposit, allData.banks);
+        fillSelect(beneficiarySelect, allData.beneficiaries);
+        fillSelect(projectSelect, allData.projects);
+      });
+    });
+
+    //----------------------------------- متابعة خانة رقم الشيك -------------------------------
+    chequeInput.addEventListener("input", () => {
+      const cheque = chequeInput.value.trim();
+      if (!cheque) return moneyForm.reset();
+
+      const tx = transactions.find(t => t.chequeNo === cheque && t.issueNumber == document.getElementById("txIssueInput").value);
+      if (!tx) return;
+
+      document.getElementById("receiptNoInput").value = tx.receiptNo || "";
+      document.getElementById("receiptValueInput").value = tx.receiptValue || 0;
+      document.getElementById("bankSelectInput").value = tx.bankId || "";
+      document.getElementById("companySelectInput").value = tx.companyId || "";
+      document.getElementById("beneficiarySelectInput").value = tx.beneficiaryId || "";
+      document.getElementById("projectSelectInput").value = tx.projectId || "";
+      document.getElementById("amountInput").value = tx.amount || 0;
+      document.getElementById("reasonInputNew").value = tx.reason || "";
+      document.getElementById("paymentDescInput").value = tx.paymentDesc || "";
+    });
+
+    //----------------------------------- متابعة خانة رقم سند القبض -------------------------------
+    receiptNoInput.addEventListener("input", () => {
+      const receiptNo = receiptNoInput.value.trim();
+      if (!receiptNo) return moneyForm.reset();
+
+      const tx = transactions.find(t => t.receiptNo === receiptNo && t.issueNumber == document.getElementById("txIssueInput").value);
+      if (!tx) return;
+
+      document.getElementById("receiptValueInput").value = tx.receiptValue || 0;
+      document.getElementById("bankSelectInputDeposit").value = tx.bankId || "";
+      document.getElementById("companySelect").value = tx.companyId || "";
+      document.getElementById("paymentDescInput").value = tx.paymentDesc || "";
+    });
+
+    //----------------------------------- إضافة / تعديل معاملات -------------------------------
+    moneyForm.addEventListener("submit", async e => {
+      e.preventDefault();
+
+      let issueNumber = Number(document.getElementById("txIssueInput").value);
+      if (!issueNumber) {
+        issueNumber = await getNextIssueNumber();  // توليد تلقائي
+        document.getElementById("txIssueInput").value = issueNumber;
+        erpTxIssueEl.textContent = issueNumber;
+      }
+
+      // ضبط الرصيد الابتدائي للإصدار الجديد إذا لم يكن موجودًا
+      if (!startBalancesByBank || Object.keys(startBalancesByBank).length === 0) {
+        const lastSnap = await get(ref(db, "issues"));
+        if (lastSnap.exists()) {
+          const allIssues = Object.values(lastSnap.val());
+          const lastSaved = allIssues.sort((a, b) => b.issueNumber - a.issueNumber)[0];
+          startBalancesByBank = lastSaved?.balancesByBank ? JSON.parse(JSON.stringify(lastSaved.balancesByBank)) : {};
+        } else {
+          startBalancesByBank = {};
+          Object.keys(allData.banks || {}).forEach((bankId, index) => {
+            startBalancesByBank[bankId] = (index === 0) ? 2809428.00 : 0;
+          });
+        }
+        alert("إصدار جديد. تم ضبط الرصيد الابتدائي ✅");
+      }
+
+      const type = movementType.value;
+      let tx = {
+        date: document.getElementById("txDateInput").value,
+        issueNumber: issueNumber,
+        bankId: type === "deposit" ? bankSelectDeposit.value : bankSelect.value,
+        companyId: companySelect.value,
+        movementType: type
+      };
+
+      if (type === "deposit") {
+        tx.receiptNo = document.getElementById("receiptNoInput").value.trim();
+        tx.receiptValue = parseFloat(document.getElementById("receiptValueInput").value) || 0;
+        tx.paymentDesc = document.getElementById("paymentDescInput").value.trim();
+
+        if (!tx.bankId || !tx.receiptNo) {
+          alert("من فضلك أدخل بيانات القبض المطلوبة (بنك + رقم سند).");
+          return;
+        }
+
+        // فحص التكرار داخل الإصدارات الأخرى
+        const issuesRef = ref(db, "issues");
+        const snapshot = await get(issuesRef);
+        if (snapshot.exists()) {
+          const allIssues = Object.values(snapshot.val());
+          const duplicate = allIssues.some(issue =>
+            (issue.transactions || []).some(t => t.receiptNo === tx.receiptNo && issue.issueNumber !== tx.issueNumber)
+          );
+          if (duplicate) {
+            alert("⚠️ رقم سند القبض مستخدم مسبقًا في إصدار آخر.");
+            return;
+          }
+        }
+
+        // تحديث لو موجود أو رفض التكرار
+        const existingIndex = transactions.findIndex(t => t.receiptNo === tx.receiptNo && t.issueNumber == tx.issueNumber);
+        if (existingIndex !== -1) {
+          transactions[existingIndex] = tx; // تعديل
+        } else {
+          const duplicateHere = transactions.some(t => t.receiptNo === tx.receiptNo);
+          if (duplicateHere) {
+            alert("⚠️ رقم سند القبض موجود مسبقًا داخل نفس الإصدار.");
+            return;
+          }
+          transactions.push(tx); // إضافة أول مرة فقط
+        }
+      }
+      else if (type === "withdraw") {
+        const wType = withdrawType.value;
+        tx.withdrawType = wType;
+
+        if (wType === "cheque") {
+          tx.chequeNo = document.getElementById("chequeNoInput").value.trim();
+          tx.reason = document.getElementById("reasonInputNew").value.trim();
+          tx.amount = parseFloat(document.getElementById("amountInput").value) || 0;
+          tx.beneficiaryId = beneficiarySelect.value;
+          tx.projectId = projectSelect.value;
+
+          if (!tx.bankId || !tx.amount || !tx.beneficiaryId || !tx.projectId) {
+            alert("من فضلك أكمل بيانات الصرف.");
+            return;
+          }
+
+          const issuesRef = ref(db, "issues");
+          const snapshot = await get(issuesRef);
+          if (snapshot.exists()) {
+            const allIssues = Object.values(snapshot.val());
+            const duplicate = allIssues.some(issue =>
+              (issue.transactions || []).some(t => t.chequeNo === tx.chequeNo && issue.issueNumber !== tx.issueNumber)
+            );
+            if (duplicate) {
+              alert("⚠️ رقم الشيك مستخدم مسبقًا في إصدار آخر.");
+              return;
+            }
+          }
+
+          const existingIndex = transactions.findIndex(t => t.chequeNo === tx.chequeNo && t.issueNumber == tx.issueNumber);
+          if (existingIndex !== -1) {
+            transactions[existingIndex] = tx;
+          } else {
+            transactions.push(tx);
+          }
+
+        } else if (wType === "transfer") {
+          tx.chequeNo = "حوالة";
+          tx.reason = document.getElementById("reasonInputTransfer").value.trim();
+          tx.amount = parseFloat(document.getElementById("amountInputTransfer").value) || 0;
+          tx.beneficiaryId = beneficiarySelect.value;
+          tx.projectId = projectSelect.value;
+          transactions.push(tx);
+        }
+      }
+
+      if (!tx.date || !tx.issueNumber) {
+        alert("من فضلك أدخل تاريخ الإصدار ورقمه.");
+        return;
+      }
+
+      renderTransactionsTable();
+      renderReceiptsByBank();
+      updateBalancesSummary();
+
+      moneyForm.reset();
+      movementType.value = "";
+      withdrawType.value = "";
+      depositFields.style.display = "none";
+      chequeFields.style.display = "none";
+      transferFields.style.display = "none";
+      withdrawOptions.style.display = "none";
+
+    });
+
+    //----------------------------------- تعديل زر المسح ليصبح حذف -------------------------------
+    clearEntryBtn.addEventListener("click", async () => {
+      const cheque = chequeInput.value.trim();
+      const receipt = receiptNoInput.value.trim();
+      const currentIssue = Number(document.getElementById("txIssueInput").value);
+
+      // 1) لو المستخدم كتب شيك أو سند → حذف المعاملة فقط
+      if (cheque || receipt) {
+        let index = -1;
+        if (cheque) {
+          index = transactions.findIndex(
+            t => t.chequeNo === cheque && t.issueNumber == currentIssue
+          );
+        } else if (receipt) {
+          index = transactions.findIndex(
+            t => t.receiptNo === receipt && t.issueNumber == currentIssue
+          );
+        }
+
+        if (index === -1) {
+          alert("⚠️ المعاملة غير موجودة.");
+          return;
+        }
+
+        transactions.splice(index, 1);
+        renderTransactionsTable();
+        updateBalancesSummary();
+        renderReceiptsByBank();
+        moneyForm.reset();
+        alert("✅ تم حذف المعاملة.");
+        return;
+      }
+
+      if (!currentIssue) {
+        alert("⚠️ لم يتم تحديد رقم المستند.");
+        return;
+      }
+
+      if (!confirm("هل أنت متأكد أنك تريد حذف الإصدار رقم " + currentIssue + " بالكامل؟")) {
+        return;
+      }
+
+      try {
+        const issueRef = ref(db, "issues/" + currentIssue);
+        await remove(issueRef);
+
+        transactions = [];
+        startBalancesByBank = {};
+        renderTransactionsTable();
+        updateBalancesSummary();
+        renderReceiptsByBank();
+
+        document.getElementById("txIssueInput").value = "";
+        document.getElementById("txDateInput").value = "";
+        erpTxIssueEl.textContent = "0";
+        erpTxDateEl.textContent = "00/00/0000";
+
+        alert("✅ تم حذف الإصدار بالكامل.");
+      } catch (err) {
+        console.error(err);
+        alert("❌ حدث خطأ أثناء حذف الإصدار.");
+      }
+    });
+
+    //----------------------------------- عرض الجدول -------------------------------
+    function renderTransactionsTable() {
+      tbody.innerHTML = "";
+      let total = 0;
+
+      const withdrawals = transactions.filter(t => t.movementType === "withdraw");
+
+      if (!withdrawals.length) {
+        tbody.innerHTML = `<tr><td colspan="7" class="small">لا توجد معاملات صرف</td></tr>`;
+        erpTotalEl.textContent = formatNumber(0);
+        return;
+      }
+
+      withdrawals.forEach((tx, idx) => {
+        total += Number(tx.amount || 0);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+      <td>${idx + 1}</td>
+      <td>${tx.chequeNo || "-"}</td>
+      <td>${tx.amount || 0}</td>
+      <td>${getNameById(allData.banks, tx.bankId)}</td>
+      <td>${getNameById(allData.beneficiaries, tx.beneficiaryId)}</td>
+      <td>${tx.reason || "-"}</td>
+      <td>${getNameById(allData.projects, tx.projectId)}</td>
+    `;
+        tbody.appendChild(tr);
+      });
+
+      erpTotalEl.textContent = formatNumber(total);
+    }
+
+    //----------------------------------- تحديث الأرصدة -------------------------------
+    function updateBalancesSummary() {
+      const balancesBody = document.getElementById("balancesByBankBody");
+      balancesBody.innerHTML = "";
+
+      const grouped = {};
+      let totalDeposit = 0;
+      let totalWithdraw = 0;
+      let totalStart = 0;
+
+      transactions.forEach(t => {
+        const bankId = t.bankId || "unknown";
+        if (!grouped[bankId]) grouped[bankId] = { deposit: 0, withdraw: 0 };
+
+        if (t.receiptValue && Number(t.receiptValue) > 0) grouped[bankId].deposit += Number(t.receiptValue);
+        if (t.amount && Number(t.amount) > 0) grouped[bankId].withdraw += Number(t.amount);
+      });
+
+      Object.entries(grouped).forEach(([bankId, data]) => {
+        const bankName = getNameById(allData.banks, bankId) || "غير محدد";
+        const bankStart = startBalancesByBank[bankId] || 0;
+        const afterDeposit = bankStart + data.deposit;
+        const current = afterDeposit - data.withdraw;
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${bankName}</td>
+            <td>${formatNumber(bankStart)}</td>
+            <td>${formatNumber(data.deposit)}</td>
+            <td>${formatNumber(afterDeposit)}</td>
+            <td>${formatNumber(data.withdraw)}</td>
+            <td>${formatNumber(current)}</td>
+        `;
+        balancesBody.appendChild(tr);
+
+        totalStart += bankStart;
+        totalDeposit += data.deposit;
+        totalWithdraw += data.withdraw;
+      });
+
+      const totalRow = document.createElement("tr");
+      totalRow.style.background = "#f2f8ff";
+      totalRow.style.fontWeight = "700";
+      totalRow.innerHTML = `
+        <td>الإجمالي</td>
+        <td>${formatNumber(totalStart)}</td>
+        <td>${formatNumber(totalDeposit)}</td>
+        <td>${formatNumber(totalStart + totalDeposit)}</td>
+        <td>${formatNumber(totalWithdraw)}</td>
+        <td>${formatNumber(totalStart + totalDeposit - totalWithdraw)}</td>
+    `;
+      balancesBody.appendChild(totalRow);
+    }
+
+    updateBalancesSummary();
+
+    //----------------------------------- عرض سندات القبض -------------------------------
+    function renderReceiptsByBank() {
+      receiptsByBankEl.innerHTML = "";
+      let totalAll = 0;
+
+      transactions.forEach(t => {
+        if (t.receiptValue && Number(t.receiptValue) > 0) {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+                <td>${getNameById(allData.banks, t.bankId) || "غير محدد"}</td>
+                <td>${t.receiptNo || "-"}</td>
+                <td>${formatNumber(t.receiptValue)}</td>
+                <td>${t.paymentDesc || "-"}</td>
+            `;
+          receiptsByBankEl.appendChild(tr);
+          totalAll += Number(t.receiptValue);
+        }
+      });
+
+      if (totalAll === 0) {
+        receiptsByBankEl.innerHTML = `<tr><td colspan="4" class="small">لا توجد سندات قبض</td></tr>`;
+        return;
+      }
+
+      const totalRow = document.createElement("tr");
+      totalRow.style.background = "#f2f8ff";
+      totalRow.style.fontWeight = "700";
+      totalRow.innerHTML = `
+        <td colspan="2" style="text-align:right">الإجمالي</td>
+        <td>${formatNumber(totalAll)}</td>
+        <td>-</td>
+    `;
+      receiptsByBankEl.appendChild(totalRow);
+    }
+
+    // ----------------------------------- حفظ الإصدار بالكامل -------------------------------
+    saveIssueBtn.addEventListener("click", async () => {
+      const currentIssue = Number(document.getElementById("txIssueInput").value);
+      if (!currentIssue) {
+        alert("لم يتم تحديد رقم المستند.");
+        return;
+      }
+
+      const issueTransactions = transactions.filter(t => Number(t.issueNumber) === currentIssue);
+      if (!issueTransactions.length) {
+        alert("لا توجد معاملات مرتبطة برقم المستند: " + currentIssue);
+        return;
+      }
+      if (!companySelect.value) {
+        alert("اختر الشركة المرتبطة بالمستند.");
+        return;
+      }
+      if (!document.getElementById("txDateInput").value) {
+        alert("حدد تاريخ المستند.");
+        return;
+      }
+
+      const companyId = companySelect.value;
+      const companyNameAr = allData.companies[companyId]?.name || getNameById(allData.companies, companyId) || "اسم الشركة";
+      const companyNameEn = allData.companies[companyId]?.nameEn || "-";
+      const txDate = document.getElementById("txDateInput").value;
+      const year = txDate ? new Date(txDate).getFullYear() : new Date().getFullYear();
+
+      try {
+        const issueRef = ref(db, "issues/" + currentIssue);
+
+        const deposit = issueTransactions.reduce((s, t) => s + (Number(t.receiptValue) || 0), 0);
+        const withdraw = issueTransactions.reduce((s, t) => s + (Number(t.amount) || 0), 0);
+
+        const balancesByBank = JSON.parse(JSON.stringify(startBalancesByBank));
+
+        issueTransactions.forEach(tx => {
+          const bankId = tx.bankId;
+          if (!bankId) return;
+          if (!balancesByBank[bankId]) balancesByBank[bankId] = 0;
+
+          balancesByBank[bankId] += (Number(tx.receiptValue) || 0) - (Number(tx.amount) || 0);
+        });
+
+        await set(issueRef, {
+          issueNumber: currentIssue,
+          companyId: companyId,
+          companyAr: companyNameAr,
+          companyEn: companyNameEn,
+          date: txDate,
+          year: year,
+          startBalancesByBank: startBalancesByBank,
+          deposit: deposit,
+          manualWithdraw: withdraw,
+          transactions: issueTransactions,
+          balancesByBank: balancesByBank,
+          savedAt: Date.now(),
+        });
+
+        renderTransactionsTable();
+        updateBalancesSummary();
+        renderReceiptsByBank();
+
+        alert("تم حفظ المستند رقم " + currentIssue + " بنجاح ✅");
+
+        showFinanceInvoice({
+          issueNumber: currentIssue,
+          companyAr: companyNameAr,
+          companyEn: companyNameEn,
+          date: txDate,
+          year: year,
+          startBalancesByBank: startBalancesByBank,
+          deposit: deposit,
+          manualWithdraw: withdraw,
+          displayBank: getNameById(allData.banks, issueTransactions[0]?.bankId) || "-",
+          transactions: issueTransactions
+        }, allData);
+
+        transactions = [];
+        startBalancesByBank = null;
+
+        document.getElementById("txIssueInput").value = "";
+        document.getElementById("txDateInput").value = "";
+        companySelect.value = "";
+        document.getElementById("movementType").value = "";
+        document.getElementById("receiptNoInput").value = "";
+        document.getElementById("receiptValueInput").value = "";
+        document.getElementById("paymentDescInput").value = "";
+        document.getElementById("bankSelectInputDeposit").value = "";
+        document.getElementById("withdrawType").value = "";
+        document.getElementById("chequeNoInput").value = "";
+        document.getElementById("reasonInputNew").value = "";
+        document.getElementById("amountInput").value = "";
+        document.getElementById("reasonInputTransfer").value = "";
+        document.getElementById("amountInputTransfer").value = "";
+        document.getElementById("bankSelectInput").value = "";
+        document.getElementById("beneficiarySelectInput").value = "";
+        document.getElementById("projectSelectInput").value = "";
+        document.getElementById("moneyEntryForm").value = "";
+        document.getElementById("erpTable").value = "";
+        document.getElementById("erpTbody").innerHTML = `<tr><td colspan="7" class="small">لا توجد معاملات صرف</td></tr>`;
+        document.getElementById("receiptsByBank").innerHTML = `<tr><td colspan="4" class="small">لا توجد بيانات</td></tr>`;
+        document.getElementById("balancesByBankBody").innerHTML = `<tr><td colspan="6" class="small">لا توجد بيانات</td></tr>`;
+        // إعادة تعيين العناوين والأرقام
+        document.getElementById("erpTotal").textContent = "0";
+        document.getElementById("erpTxIssue").textContent = "0";
+        document.getElementById("erpTxDate").textContent = "00/00/0000";
+        document.getElementById("erpCompanyName").textContent = "0";
+        document.getElementById("erpCompanyNameEnglish").textContent = "0";
+        document.getElementById("erpIssueYearDisplay").textContent = "";
+        document.getElementById("depositFields").style.display = "none";
+        document.getElementById("withdrawOptions").style.display = "none";
+        document.getElementById("chequeFields").style.display = "none";
+        document.getElementById("transferFields").style.display = "none";
+        document.getElementById("withdrawExtra").style.display = "none";
+        // إعادة إخفاء الحقول المخفية
+        depositFields.style.display = "none";
+        withdrawOptions.style.display = "none";
+        chequeFields.style.display = "none";
+        transferFields.style.display = "none";
+        withdrawExtra.style.display = "none";
+        moneyEntryForm.reset();
+
+      } catch (err) {
+        console.error(err);
+        alert("تعذر حفظ المستند");
+      }
+    });
+
+    // ----------------------------------- إظهار الحقول عند اختيار نوع الحركة -------------------------------
+    const movementType = document.getElementById("movementType");
+    const withdrawOptions = document.getElementById("withdrawOptions");
+    const withdrawExtra = document.getElementById("withdrawExtra");
+    const depositFields = document.getElementById("depositFields");
+    const chequeFields = document.getElementById("chequeFields");
+    const transferFields = document.getElementById("transferFields");
+    const withdrawType = document.getElementById("withdrawType");
+
+    movementType.addEventListener("change", () => {
+      const val = movementType.value;
+
+      depositFields.style.display = "none";
+      withdrawOptions.style.display = "none";
+      withdrawExtra.style.display = "none";
+      chequeFields.style.display = "none";
+      transferFields.style.display = "none";
+
+      if (val === "deposit") {
+        depositFields.style.display = "block";
+      } else if (val === "withdraw") {
+        withdrawOptions.style.display = "block";
+        withdrawExtra.style.display = "block";
+      }
+    });
+
+    withdrawType.addEventListener("change", () => {
+      chequeFields.style.display = "none";
+      transferFields.style.display = "none";
+
+      if (withdrawType.value === "cheque") {
+        chequeFields.style.display = "block";
+      } else if (withdrawType.value === "transfer") {
+        transferFields.style.display = "block";
+      }
+    });
+
+    moneyForm.addEventListener("reset", () => {
+      depositFields.style.display = "none";
+      withdrawOptions.style.display = "none";
+      withdrawExtra.style.display = "none";
+      chequeFields.style.display = "none";
+      transferFields.style.display = "none";
+    });
+
+    // ----------------------------------- تحديث العرض التلقائي للتاريخ/المستند/الشركة -------------------------------
+    document.getElementById("txIssueInput").addEventListener("input", () => {
+      const issueNo = document.getElementById("txIssueInput").value;
+      erpTxIssueEl.textContent = issueNo || "-";
+    });
+
+    document.getElementById("txDateInput").addEventListener("input", () => {
+      const txDate = document.getElementById("txDateInput").value;
+      erpTxDateEl.textContent = txDate || "00/00/0000";
+      if (txDate) {
+        erpIssueDisplayEl.textContent = new Date(txDate).getFullYear();
+      } else {
+        erpIssueDisplayEl.textContent = "-";
+      }
+    });
+
+    companySelect.addEventListener("change", () => {
+      const companyId = companySelect.value;
+      erpCompanyNameEl.textContent = allData.companies[companyId]?.name || "-";
+      document.getElementById("erpCompanyNameEnglish").textContent =
+        allData.companies[companyId]?.nameEn || "-";
+    });
+
+    //----------------------------------- عرض الفاتورة المالية -------------------------------//
+    window.showFinanceInvoice = function (issueData, allData) {
+      const startBalances = issueData.startBalancesByBank || {};
+      const transactions = issueData.transactions || [];
+
+      function getNameById(obj, id) {
+        return obj?.[id]?.name || id || "-";
+      }
+
+      const w = window.open("", "_blank");
+      const doc = w.document;
+
+      doc.write(`<html lang="ar" dir="rtl">
+        <head>
+          <meta charset="UTF-8">
+          <title>فاتورة مالية</title>
+          <style>
+            body { font-family: "Segoe UI", Tahoma, sans-serif; margin: 0; padding: 10px; background: #fff; }
+            .wrap { max-width: 1200px; margin: auto; }
+            .card { background: #fff; padding: 14px; border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); }
+            table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 10px; }
+            table th, table td { padding: 8px; border: 1px solid #ddd; text-align: center; }
+            table thead tr { background-color: #f4c29a; font-weight: bold; }
+            .header-table td { border: 0; font-weight: 700; font-size: 14px; text-align: center; }
+            .small { font-size: 13px; color: #666; }
+            .tables-wrap { display: grid; grid-template-columns: 1fr 1fr; margin-top: 20px; }
+            @media (max-width:880px) { .tables-wrap { grid-template-columns: 1fr; } }
+            @media print { body { padding: 0; } .card { box-shadow: none; border: none; } }
+          </style>
+        </head>
+        <body>
+          <div class="wrap">
+            <div class="card">
+              <table class="header-table" style="width:100%; background:#3f89f862; border-radius:8px;">
+                <tr>
+                  <td style="text-align:right; padding:10px;">${issueData.companyAr}</td>
+                  <td style="text-align:center; padding:10px;">الإصدارات: ${issueData.year}</td>
+                  <td style="text-align:left; padding:10px;">${issueData.companyEn}</td>
+                </tr>
+              </table>
+              <table id="withdrawals-table">
+                <thead>
+                  <tr>
+                    <td style="font-weight:600"> التاريخ: ${issueData.date || "00/00/0000"}</td>
+                    <td colspan="5"></td>
+                    <td style="font-weight:600"> رقم الإصدار: ${issueData.issueNumber || 0}</td>
+                  </tr>
+                  <tr>
+                    <th>م</th>
+                    <th>رقم الشيك</th>
+                    <th>المطلوب للدفعة</th>
+                    <th>البنك</th>
+                    <th>المستفيد</th>
+                    <th>مبررات الصرف</th>
+                    <th>المشروع</th>
+                  </tr>
+                </thead>
+                <tbody id="withdrawals-tbody"></tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="2" style="text-align:right; font-weight:800; background:#f2f8ff">الإجمالي</td>
+                      <td id="totalWithdraw" style="font-weight:800; text-align:center; background:#f2f8ff">0</td>
+                      <td colspan="4"></td>
+                    </tr>
+                  </tfoot>
+                </table>
+                <div class="tables-wrap">
+                  <div>
+                    <table id="receipts-table">
+                      <thead>
+                        <tr><th>البنك</th><th>سند القبض</th><th>القيمة</th><th>شرح الدفعة</th></tr>
+                      </thead>
+                      <tbody id="receipts-tbody"></tbody>
+                    </table>
+                  </div>
+                  <div>
+                    <table id="balances-table">
+                      <thead>
+                        <tr>
+                          <th>البنك</th>
+                          <th>رصيد أول</th>
+                          <th>إيداع</th>
+                          <th>إجمالي بعد الإيداع</th>
+                          <th>سحب</th>
+                          <th>الرصيد الحالي</th>
+                        </tr>
+                      </thead>
+                      <tbody id="balances-tbody"></tbody>
+                    </table>
+                  </div>
+                </div>
+                <div style="text-align:left; padding:5px; margin-top:10px;">
+                    المحاسب / <span>-----------</span>
+                  <div style="margin-top:10px;">
+                    <img src="file:///E:/SEIF/se.png" style="max-width:120px;" />
+                  </div>
+                </div>
+              </table>
+            </div>
+          </div>
+        </body>
+      </html>`);
+
+      doc.close();
+
+      const tbodyWithdrawals = w.document.getElementById("withdrawals-tbody");
+      const tbodyReceipts = w.document.getElementById("receipts-tbody");
+      const tbodyBalances = w.document.getElementById("balances-tbody");
+      const totalEl = w.document.getElementById("totalWithdraw");
+
+      // ===== withdrawals =====
+      let totalWithdraw = 0;
+      const withdrawals = transactions.filter(t => t.movementType === "withdraw");
+      if (withdrawals.length) {
+        withdrawals.forEach((tx, idx) => {
+          const amount = Number(tx.amount || 0);
+          totalWithdraw += amount;
+          const tr = w.document.createElement("tr");
+          tr.innerHTML = `
+        <td>${idx + 1}</td>
+        <td>${tx.chequeNo || "-"}</td>
+        <td>${amount}</td>
+        <td>${getNameById(allData.banks, tx.bankId)}</td>
+        <td>${getNameById(allData.beneficiaries, tx.beneficiaryId)}</td>
+        <td>${tx.reason || "-"}</td>
+        <td>${getNameById(allData.projects, tx.projectId)}</td>
+      `;
+          tbodyWithdrawals.appendChild(tr);
+        });
+      } else {
+        tbodyWithdrawals.innerHTML = `<tr><td colspan="7" class="small">لا توجد معاملات صرف</td></tr>`;
+      }
+      totalEl.textContent = totalWithdraw;
+
+      // ===== receipts =====
+      const receipts = transactions.filter(t => Number(t.receiptValue) > 0);
+      let totalReceipts = 0;
+
+      if (receipts.length) {
+        receipts.forEach(r => {
+          const value = Number(r.receiptValue || 0);
+          totalReceipts += value;
+          const tr = w.document.createElement("tr");
+          tr.innerHTML = `
+            <td>${getNameById(allData.banks, r.bankId)}</td>
+            <td>${r.receiptNo || "-"}</td>
+            <td>${value}</td>
+            <td>${r.paymentDesc || "-"}</td>
+          `;
+          tbodyReceipts.appendChild(tr);
+        });
+
+        const tfoot = w.document.createElement("tfoot");
+        tfoot.innerHTML = `
+          <tr>
+            <td colspan="2" style="text-align:right; font-weight:800; background:#f2f8ff">الإجمالي</td>
+            <td style="font-weight:800; background:#f2f8ff">${totalReceipts}</td>
+            <td></td>
+          </tr>
+        `;
+        w.document.getElementById("receipts-table").appendChild(tfoot);
+
+      } else {
+        tbodyReceipts.innerHTML = `<tr><td colspan="4" class="small">لا توجد سندات قبض</td></tr>`;
+      }
+
+      // ===== balances =====
+      const balancesByBank = {};
+      transactions.forEach(t => {
+        const bankId = t.bankId || "unknown";
+        if (!balancesByBank[bankId]) balancesByBank[bankId] = { deposit: 0, withdraw: 0 };
+        balancesByBank[bankId].deposit += Number(t.receiptValue || 0);
+        balancesByBank[bankId].withdraw += Number(t.amount || 0);
+      });
+
+      let totalStart = 0, totalDeposit = 0, totalWithdrawals = 0, totalAfterDeposit = 0, totalCurrent = 0;
+
+      Object.entries(balancesByBank).forEach(([bankId, data]) => {
+        const bankStart = Number(startBalances[bankId] || 0);
+        const afterDeposit = bankStart + data.deposit;
+        const current = afterDeposit - data.withdraw;
+
+        totalStart += bankStart;
+        totalDeposit += data.deposit;
+        totalWithdrawals += data.withdraw;
+        totalAfterDeposit += afterDeposit;
+        totalCurrent += current;
+
+        const tr = w.document.createElement("tr");
+        tr.innerHTML = `
+          <td>${getNameById(allData.banks, bankId)}</td>
+          <td>${bankStart}</td>
+          <td>${data.deposit}</td>
+          <td>${afterDeposit}</td>
+          <td>${data.withdraw}</td>
+          <td>${current}</td>
+          `;
+        tbodyBalances.appendChild(tr);
+      });
+
+      const tfootBal = w.document.createElement("tfoot");
+      tfootBal.innerHTML = `
+        <tr style="background:#f2f8ff; font-weight:800">
+        <td>الإجمالي</td>
+        <td>${totalStart}</td>
+        <td>${totalDeposit}</td>
+        <td>${totalAfterDeposit}</td>
+        <td>${totalWithdrawals}</td>
+        <td>${totalCurrent}</td>
+        </tr>
+      `;
+      w.document.getElementById("balances-table").appendChild(tfootBal);
+    };
+
+    //----------------------------------- إعادة رسم البيانات عند التحميل -------------------------------
+    setTimeout(() => {
+      renderTransactionsTable();
+      updateBalancesSummary();
+      renderReceiptsByBank();
+    }, 400);
+
+
+    ////////////////////////////////////////////////////////////////////////
+    let latestIssues = [];
+    let currentSort = { key: null, dir: 1 };
+    let ELEMENTS = {}; // سنهيئه بعد DOM
+
+    function escapeHtml(s) { if (s == null) return ""; return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" })[c]); }
+
+    const nf = new Intl.NumberFormat('ar-EG');
+    const df = new Intl.DateTimeFormat('ar-EG', { day: '2-digit', month: 'short', year: 'numeric' });
+    function formatCurrency(v) { v = Number(v) || 0; return nf.format(v) + " ج"; }
+    function formatDate(iso) { try { const d = new Date(iso); if (isNaN(d)) return "-"; return df.format(d); } catch (e) { return "-"; } }
+
+    function showLoader(show, text) {
+      if (ELEMENTS && ELEMENTS.loader) {
+        ELEMENTS.loader.style.display = show ? "" : "none";
+        if (text) ELEMENTS.loader.textContent = text;
+      } else {
+        if (ELEMENTS && ELEMENTS.statusInfo) ELEMENTS.statusInfo.textContent = text || (show ? 'جارٍ التحميل...' : 'جاهز');
+        else console.warn('showLoader: loader element not available yet');
+      }
+    }
+
+    function showEmpty(msg) {
+      if (ELEMENTS.reportTable) ELEMENTS.reportTable.style.display = "none";
+      if (ELEMENTS.emptyState) { ELEMENTS.emptyState.style.display = "block"; ELEMENTS.emptyState.textContent = msg || "لا توجد بيانات مطابقة"; }
+      if (ELEMENTS.summaryCard) ELEMENTS.summaryCard.style.display = "none";
+    }
+
+    function renderReportTable(type, rows) {
+      if (!ELEMENTS.reportBody || !ELEMENTS.reportHeader || !ELEMENTS.reportFoot) return;
+
+      ELEMENTS.reportBody.innerHTML = "";
+      ELEMENTS.reportFoot.innerHTML = "";
+      ELEMENTS.reportHeader.innerHTML = "";
+
+      if (!rows.length) {
+        if (ELEMENTS.reportTable) ELEMENTS.reportTable.style.display = "none";
+        if (ELEMENTS.emptyState) ELEMENTS.emptyState.style.display = "block";
+        if (ELEMENTS.summaryCard) ELEMENTS.summaryCard.style.display = "none";
+        return;
+      }
+
+      ELEMENTS.reportTable.style.display = "";
+      ELEMENTS.emptyState.style.display = "none";
+
+      const headers = [
+        { key: 'movementType', label: 'النوع' },
+        { key: 'date', label: 'التاريخ' },
+        { key: 'bank', label: 'البنك' },
+        { key: 'company', label: 'الشركة' },
+        { key: 'refNo', label: 'رقم المرجع' },
+        { key: 'amount', label: 'المبلغ' },
+        { key: 'description', label: 'الوصف/السبب' },
+        { key: 'beneficiary', label: 'المستفيد' },
+        { key: 'project', label: 'المشروع' }
+      ];
+
+      headers.forEach(h => {
+        const th = document.createElement('th');
+        th.textContent = h.label;
+        th.dataset.key = h.key;
+        th.addEventListener('click', () => headerSort(h.key));
+        ELEMENTS.reportHeader.appendChild(th);
+      });
+
+      let totalReceipts = 0, totalWithdraws = 0, countReceipts = 0, countWithdraws = 0, grandTotal = 0;
+
+      rows.forEach(tx => {
+        const tr = document.createElement('tr');
+        const movement = tx.movementType === "deposit" ? "سند قبض" : (tx.movementType === "withdraw" ? "شيك/حوالة" : (tx.movementType || "-"));
+        const bankName = allData.banks[tx.bankId]?.name || "-";
+        const companyName = allData.companies[tx.companyId]?.name || "-";
+        const dateStr = tx.date ? formatDate(tx.date) : "-";
+        const refNo = tx.receiptNo || tx.chequeNo || tx.txNo || "-";
+        const amountVal = Number(tx.amount ?? tx.receiptValue ?? 0) || 0;
+        const desc = tx.reason || tx.paymentDesc || "-";
+        const beneficiaryName = getNameById(allData.beneficiaries, tx.beneficiaryId) || tx.beneficiaries || "-";
+        const projectName = getNameById(allData.projects, tx.projectId) || tx.projects || "-";
+
+        tr.innerHTML = `
+          <td>${escapeHtml(movement)}</td>
+          <td>${escapeHtml(dateStr)}</td>
+          <td>${escapeHtml(bankName)}</td>
+          <td>${escapeHtml(companyName)}</td>
+          <td>${escapeHtml(refNo)}</td>
+          <td data-raw="${amountVal}">${formatCurrency(amountVal)}</td>
+          <td>${escapeHtml(desc)}</td>
+          <td>${escapeHtml(beneficiaryName)}</td>
+          <td>${escapeHtml(projectName)}</td>
+        `;
+        ELEMENTS.reportBody.appendChild(tr);
+
+        grandTotal += amountVal;
+        if (tx.movementType === "deposit") { totalReceipts += amountVal; countReceipts++; }
+        else if (tx.movementType === "withdraw") { totalWithdraws += amountVal; countWithdraws++; }
+      });
+
+      const footRow = document.createElement('tr');
+      footRow.innerHTML = `<td colspan="5">المجموع الكلي / عدد الحركات: ${rows.length}</td>
+                           <td>${formatCurrency(grandTotal)}</td>
+                           <td colspan="3"></td>`;
+      ELEMENTS.reportFoot.appendChild(footRow);
+
+      ELEMENTS.summaryCard.style.display = "";
+      ELEMENTS.totalReceipts.textContent = formatCurrency(totalReceipts);
+      ELEMENTS.totalWithdraws.textContent = formatCurrency(totalWithdraws);
+      ELEMENTS.netTotal.textContent = formatCurrency(totalReceipts - totalWithdraws);
+      ELEMENTS.countReceipts.textContent = nf.format(countReceipts);
+      ELEMENTS.countWithdraws.textContent = nf.format(countWithdraws);
+      setSortIcons();
+    }
+
+    function headerSort(key) {
+      if (!ELEMENTS.reportBody) return;
+      const bodyRows = Array.from(ELEMENTS.reportBody.querySelectorAll('tr'));
+      const rowsData = bodyRows.map(tr => {
+        const tds = Array.from(tr.children);
+        return {
+          el: tr,
+          movementType: tds[0].textContent.trim(),
+          date: parseDateFromCell(tds[1].textContent),
+          bank: tds[2].textContent.trim(),
+          company: tds[3].textContent.trim(),
+          refNo: tds[4].textContent.trim(),
+          amount: Number(tds[5].dataset.raw || tds[5].textContent.replace(/[^\d.-]/g, '')) || 0,
+          description: tds[6].textContent.trim(),
+          beneficiary: tds[7].textContent.trim(),
+          project: tds[8].textContent.trim()
+        };
+      });
+
+      if (currentSort.key === key) currentSort.dir *= -1;
+      else { currentSort.key = key; currentSort.dir = -1; }
+
+      rowsData.sort((a, b) => {
+        const A = a[key] ?? "";
+        const B = b[key] ?? "";
+        if (typeof A === "number" && typeof B === "number") return (A - B) * currentSort.dir;
+        if (A > B) return 1 * currentSort.dir;
+        if (A < B) return -1 * currentSort.dir;
+        return 0;
+      });
+
+      ELEMENTS.reportBody.innerHTML = "";
+      rowsData.forEach(r => ELEMENTS.reportBody.appendChild(r.el));
+      setSortIcons();
+    }
+    function parseDateFromCell(txt) { const d = Date.parse(txt); if (!isNaN(d)) return d; return 0; }
+    function setSortIcons() {
+      const ths = Array.from(ELEMENTS.reportHeader.children || []);
+      ths.forEach(th => { th.classList.remove('sort-asc', 'sort-desc'); const key = th.dataset.key; if (currentSort.key === key) { th.classList.add(currentSort.dir === 1 ? 'sort-asc' : 'sort-desc'); } });
+    }
+
+    // export
+    function exportTableToExcel() {
+      if (!ELEMENTS.reportTable || ELEMENTS.reportTable.style.display === "none") { alert("لا توجد بيانات للتصدير."); return; }
+      const tableHtml = ELEMENTS.reportTable.outerHTML;
+      const blob = new Blob(["\ufeff", tableHtml], { type: "application/vnd.ms-excel;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = `report_${new Date().toISOString().slice(0, 10)}.xls`; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    }
+    function exportTableToCSV() {
+      if (!ELEMENTS.reportTable || ELEMENTS.reportTable.style.display === "none") { alert("لا توجد بيانات للتصدير."); return; }
+      const rows = [];
+      const headers = Array.from(ELEMENTS.reportHeader.children).map(h => cleanCsvCell(h.textContent));
+      rows.push(headers.join(';'));
+      const bodyRows = Array.from(ELEMENTS.reportBody.children);
+      bodyRows.forEach(tr => { const cells = Array.from(tr.children).map(td => cleanCsvCell(td.textContent)); rows.push(cells.join(';')); });
+      const footCells = Array.from(ELEMENTS.reportFoot.querySelectorAll('td')).map(td => cleanCsvCell(td.textContent));
+      if (footCells.length) rows.push(footCells.join(';'));
+      const csvContent = "\ufeff" + rows.join("\n");
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `report_${new Date().toISOString().slice(0, 10)}.csv`; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    }
+    function cleanCsvCell(s) { if (s == null) return ""; return '"' + String(s).replace(/"/g, '""').trim() + '"'; }
+
+    // runReport: يجلب البيانات من Firebase ثم يعالج
+    async function runReport() {
+      showLoader(true, "جارٍ تحميل البيانات...");
+      if (ELEMENTS.statusInfo) ELEMENTS.statusInfo.textContent = "جاري استعلام البيانات...";
+      try {
+        const snap = await get(ref(db, "issues"));
+        if (!snap.exists()) {
+          showEmpty("❌ لا توجد بيانات محفوظة في النظام.");
+          showLoader(false);
+          return;
+        }
+        const issuesObj = snap.val();
+        latestIssues = Object.values(issuesObj || []);
+        processAndRender();
+      } catch (err) {
+        console.error(err);
+        showEmpty("حدث خطأ أثناء تحميل البيانات. تحقق من الاتصال.");
+      } finally {
+        showLoader(false);
+        if (ELEMENTS.statusInfo) ELEMENTS.statusInfo.textContent = "جاهز";
+      }
+    }
+
+    function processAndRender() {
+      const type = (ELEMENTS.typeSelect && ELEMENTS.typeSelect.value) || 'all';
+      const companyId = (ELEMENTS.companySelect && ELEMENTS.companySelect.value) || '';
+      const bankId = (ELEMENTS.bankSelect && ELEMENTS.bankSelect.value) || '';
+      const from = (ELEMENTS.dateFrom && ELEMENTS.dateFrom.value) || '';
+      const to = (ELEMENTS.dateTo && ELEMENTS.dateTo.value) || '';
+      const text = ((ELEMENTS.textSearch && ELEMENTS.textSearch.value) || "").trim().toLowerCase();
+
+      const fromDate = from ? new Date(from + "T00:00:00") : null;
+      const toDate = to ? new Date(to + "T23:59:59") : null;
+
+      let rows = [];
+      latestIssues.forEach(issue => {
+        (issue.transactions || []).forEach(tx => {
+          const txDate = tx.date ? new Date(tx.date) : null;
+          if (fromDate && txDate && txDate < fromDate) return;
+          if (toDate && txDate && txDate > toDate) return;
+          if (companyId && tx.companyId !== companyId) return;
+          if (bankId && tx.bankId !== bankId) return;
+          if (type === "receipts" && tx.movementType !== "deposit") return;
+          if (type === "withdraws" && tx.movementType !== "withdraw") return;
+
+          if (text) {
+            const haystack = [
+              tx.paymentDesc, tx.reason, tx.beneficiary, tx.beneficiaryId,
+              tx.projectId, tx.chequeNo, tx.receiptNo, (allData.banks[tx.bankId]?.name || ""),
+              (allData.companies[tx.companyId]?.name || "")
+            ].filter(Boolean).join(" ").toLowerCase();
+            if (!haystack.includes(text)) return;
+          }
+
+          rows.push(Object.assign({}, tx));
+        });
+      });
+
+      rows.sort((a, b) => { const ta = new Date(a.date || 0).getTime(); const tb = new Date(b.date || 0).getTime(); return tb - ta; });
+      renderReportTable(type, rows);
+    }
+
+    // بعد تحميل DOM نهيئ العناصر ونربط الأحداث ونفرِّغ أي استدعاءات مؤجلة
+    document.addEventListener('DOMContentLoaded', () => {
+      ELEMENTS = {
+        companySelect: document.getElementById("queryCompany"),
+        bankSelect: document.getElementById("queryBank"),
+        typeSelect: document.getElementById("queryType"),
+        dateFrom: document.getElementById("dateFrom"),
+        dateTo: document.getElementById("dateTo"),
+        textSearch: document.getElementById("textSearch"),
+        loader: document.getElementById("loader"),
+        statusInfo: document.getElementById("statusInfo"),
+        reportTable: document.getElementById("reportTable"),
+        reportHeader: document.getElementById("reportHeader"),
+        reportBody: document.getElementById("reportBody"),
+        reportFoot: document.getElementById("reportFoot"),
+        emptyState: document.getElementById("emptyState"),
+        summaryCard: document.getElementById("summaryCard"),
+        totalReceipts: document.getElementById("totalReceipts"),
+        totalWithdraws: document.getElementById("totalWithdraws"),
+        netTotal: document.getElementById("netTotal"),
+        countReceipts: document.getElementById("countReceipts"),
+        countWithdraws: document.getElementById("countWithdraws"),
+        btnRun: document.getElementById("btnRun"),
+        btnExportExcel: document.getElementById("btnExportExcel"),
+        btnExportCSV: document.getElementById("btnExportCSV")
+      };
+
+      // تحذير إن عناصر مفقودة
+      Object.entries(ELEMENTS).forEach(([k, el]) => { if (!el) console.warn(`Warning: DOM element ${k} not found`); });
+
+      // ربط الأحداث
+      if (ELEMENTS.btnRun) ELEMENTS.btnRun.addEventListener('click', runReport);
+      if (ELEMENTS.btnExportExcel) ELEMENTS.btnExportExcel.addEventListener('click', exportTableToExcel);
+      if (ELEMENTS.btnExportCSV) ELEMENTS.btnExportCSV.addEventListener('click', exportTableToCSV);
+
+      // تحميل القوائم (companies, banks) من Firebase
+      onValue(ref(db, "companies"), snap => {
+        allData.companies = snap.val() || {};
+        if (ELEMENTS.companySelect) {
+          ELEMENTS.companySelect.innerHTML = '<option value="">الكل</option>';
+          Object.entries(allData.companies).forEach(([id, obj]) => {
+            const name = obj?.name || id;
+            ELEMENTS.companySelect.innerHTML += `<option value="${id}">${escapeHtml(name)}</option>`;
+          });
+        }
+      });
+
+      onValue(ref(db, "banks"), snap => {
+        allData.banks = snap.val() || {};
+        if (ELEMENTS.bankSelect) {
+          ELEMENTS.bankSelect.innerHTML = '<option value="">الكل</option>';
+          Object.entries(allData.banks).forEach(([id, obj]) => {
+            const name = obj?.name || id;
+            ELEMENTS.bankSelect.innerHTML += `<option value="${id}">${escapeHtml(name)}</option>`;
+          });
+        }
+      });
+
+      // 1) الآن أعِد ربط window.runReport إلى الدالة الحقيقية
+      if (window._runReportQueue && window._runReportQueue.length) {
+        // خزن الاستدعاءات ثم نفذها تتابعياً
+        const queued = window._runReportQueue.slice();
+        window._runReportQueue.length = 0;
+        // استبدل التعريف العام
+        window.runReport = runReport;
+        // تنفيذ الاستدعاءات المؤجلة
+        queued.forEach(args => {
+          try { runReport.apply(null, args); } catch (e) { console.error('Error executing queued runReport:', e); }
+        });
+      } else {
+        // لا استدعاءات مؤجلة — مجرد تعيين
+        window.runReport = runReport;
+      }
+
+      // (اختياري) تحميل تلقائي عند فتح الصفحة — فك التعليق إن أردت
+      // runReport();
+    });
+    //////////////////////////////////////////////////////////
+  const loginForm = document.getElementById("loginForm");
+  const loginSection = document.getElementById("loginSection");
+  const appMain = document.getElementById("appMain");
+  const bottomNav = document.querySelector(".bottom-nav");
+  const loginStatus = document.getElementById("loginStatus");
+
+  let currentUser = null; // نخزن بيانات المستخدم هنا
+
+  loginForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const username = document.getElementById("loginUsername").value.trim();
+    const password = document.getElementById("loginPassword").value.trim();
+
+    const usersRef = ref(db, "users");
+    const snapshot = await get(usersRef);
+
+    if (snapshot.exists()) {
+      const users = Object.values(snapshot.val());
+      const found = users.find(user => user.username === username && user.password === password);
+
+      if (found) {
+        currentUser = found;
+
+        // ✅ إظهار النظام
+        loginSection.style.display = "none";
+        appMain.style.display = "block";
+        bottomNav.style.display = "flex";
+
+        // 🔑 لو أدمن → إظهر كارت الإضافة
+        if (found.role === "admin") {
+          document.getElementById("adminCard").style.display = "block";
+        } else {
+          document.getElementById("adminCard").style.display = "none";
+        }
+
+      } else {
+        loginStatus.textContent = "❌ بيانات الدخول غير صحيحة";
+      }
+    } else {
+      loginStatus.textContent = "⚠️ لا يوجد مستخدمين مسجلين";
+    }
+  });
+
+  // ---------------------- إضافة مستخدم جديد (Admins) ----------------------
+  const userForm = document.getElementById("userForm");
+  const usersTableBody = document.querySelector("#usersTable tbody");
+
+  userForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fullName = document.getElementById("fullName").value.trim();
+    const username = document.getElementById("username").value.trim();
+    const role = document.getElementById("role").value;
+    const signature = document.getElementById("signature").files[0];
+
+    if (!fullName || !username || !role) {
+      alert("⚠️ يرجى إدخال جميع البيانات");
+      return;
+    }
+
+    let signatureURL = "";
+    if (signature) {
+      signatureURL = URL.createObjectURL(signature);
+    }
+
+    const newUserRef = push(ref(db, "users"));
+    await set(newUserRef, {
+      fullName,
+      username,
+      password: username, // الباسورد = اليوزر
+      role,
+      signatureURL
+    });
+
+    alert("✅ تم إضافة المستخدم بنجاح");
+    userForm.reset();
+  });
+
+  // تحديث جدول المستخدمين
+  onValue(ref(db, "users"), (snapshot) => {
+    usersTableBody.innerHTML = "";
+    if (snapshot.exists()) {
+      const users = snapshot.val();
+      Object.values(users).forEach(user => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${user.username}</td>
+          <td>${user.fullName}</td>
+          <td>${user.role}</td>
+          <td>${user.signatureURL ? `<img src="${user.signatureURL}" width="40" />` : "-"}</td>
+        `;
+        usersTableBody.appendChild(tr);
+      });
+    }
+  });
+
+  // ---------------------- تغيير كلمة المرور ----------------------
+  const changePasswordForm = document.getElementById("changePasswordForm");
+  const passwordStatus = document.getElementById("passwordStatus");
+
+  changePasswordForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const oldPassword = document.getElementById("oldPassword").value.trim();
+    const newPassword = document.getElementById("newPassword").value.trim();
+    const confirmPassword = document.getElementById("confirmPassword").value.trim();
+
+    if (oldPassword !== currentUser.password) {
+      passwordStatus.textContent = "❌ كلمة المرور الحالية غير صحيحة";
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      passwordStatus.textContent = "❌ كلمتا المرور غير متطابقتين";
+      return;
+    }
+
+    // تحديث الباسورد في Firebase
+    const usersRef = ref(db, "users");
+    const snapshot = await get(usersRef);
+
+    if (snapshot.exists()) {
+      const users = snapshot.val();
+      const userKey = Object.keys(users).find(key => users[key].username === currentUser.username);
+
+      if (userKey) {
+        await update(ref(db, `users/${userKey}`), { password: newPassword });
+        passwordStatus.textContent = "✅ تم تحديث كلمة المرور بنجاح";
+        currentUser.password = newPassword;
+      }
+    }
+  });
+
+  </script>
+
+</body>
+
+</html>
