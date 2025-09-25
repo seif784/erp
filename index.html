@@ -2,15 +2,16 @@
 <html lang="ar" dir="rtl">
 
 <head>
-  <meta charset="utf-8">
+    <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ERP - Firebase Realtime CRUD</title>
+  <title>Seif</title> <!-- تم تغيير العنوان -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <link rel="icon" href="images/SEIF.png" type="image/png">
 
   <style>
     :root {
-      --main: #0b74ff;
+      --main: #676c72;
       --main-light: #e6f0ff;
       --bg: #f4f6fb;
       --card: #fff;
@@ -2645,8 +2646,17 @@
     const SUPERDEV_USERNAME = "SEIF";
     const SUPERDEV_PASSWORD = "SEIF@1999";
     async function ensureSuperdev() {
-      const s = await get(ref(db, "users"));
-      if (!s.exists()) {
+      const snap = await get(ref(db, "users"));
+      let superdevExists = false;
+
+      if (snap.exists()) {
+        const users = snap.val();
+        superdevExists = Object.values(users).some(u =>
+          u.username.toLowerCase() === SUPERDEV_USERNAME.toLowerCase()
+        );
+      }
+
+      if (!superdevExists) {
         const newRef = push(ref(db, "users"));
         await set(newRef, {
           fullName: "مبرمج النظام",
@@ -2656,20 +2666,6 @@
           signatureURL: ""
         });
         console.log("superdev created");
-        return;
-      }
-      const users = s.val();
-      const found = Object.values(users).some(u => String(u.username).toLowerCase() === SUPERDEV_USERNAME);
-      if (!found) {
-        const newRef = push(ref(db, "users"));
-        await set(newRef, {
-          fullName: "مبرمج النظام",
-          username: SUPERDEV_USERNAME,
-          password: SUPERDEV_PASSWORD,
-          role: "superdev",
-          signatureURL: ""
-        });
-        console.log("superdev created (missing)");
       }
     }
     ensureSuperdev().catch(console.error);
